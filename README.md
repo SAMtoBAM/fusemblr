@@ -7,7 +7,7 @@ Fusembly was designed for the Fusarium consortium assembly project (hence the na
 
 
  
-	fusembly -n nanopore.fq.gz -h hifi.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz
+	fusembly -n nanopore.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz
 	
 	Required inputs:
 	-n | --nanopore		Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
