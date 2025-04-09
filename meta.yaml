@@ -1,0 +1,31 @@
+package:
+  name: fusembly
+  version: "1.0.0"  # Change this to your desired version
+
+source:
+  git_url: https://github.com/samtobam/fusembly.git
+  git_rev: main
+
+build:
+  number: 0 # Increment with each new build
+  scripts:
+    - python=3.8.*
+    - bin/fusembly
+    - bash post-link.sh
+
+requirements:
+  run:
+  - bioconda::ratatosk=0.9.0
+  - bioconda::filtlong=0.2.1
+  - bioconda::flye=2.9.5
+  - bioconda::fastp=0.24.0
+  - bioconda::nextpolish2=0.2.1
+  - bioconda::seqkit=2.10.0
+
+test:
+  commands:
+    - "fusembly.sh --help"
+
+about:
+  home: "https://github.com/samtobam/fusembly"
+  summary: "Assembly pipeline designed for Nanopore reads"
