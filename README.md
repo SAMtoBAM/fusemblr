@@ -1,6 +1,8 @@
 # fusembly
 fusembly is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
 
+Fusembly was designed for the Fusarium consortium assembly project (hence the name) in order to improve the automated steps during genome assembly
+
 
 
 
