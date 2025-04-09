@@ -32,5 +32,5 @@ Fusembly was designed for the Fusarium consortium assembly project (hence the na
 
 
 <p align="center" >
-    <img src="https://github.com/SAMtoBAM/PAQman/blob/main/figures/fusembly_schematic.svg" width=70%>
+    <img src="https://github.com/SAMtoBAM/fusembly/blob/main/figures/fusembly_schematic.svg" width=70%>
 </p>
