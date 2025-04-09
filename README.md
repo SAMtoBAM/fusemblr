@@ -1,4 +1,10 @@
 # fusemblr
+[![Zenodo DOI](XXXX)](XXXX)
+[![Anaconda_version](https://anaconda.org/samtobam/fusemblr/badges/version.svg)](https://anaconda.org/samtobam/fusemblr)
+[![Anaconda_platforms](https://anaconda.org/samtobam/fusemblr/badges/platforms.svg)](https://anaconda.org/samtobam/fusemblr)
+[![Anaconda_downloads](https://anaconda.org/samtobam/fusemblr/badges/downloads.svg)](https://anaconda.org/samtobam/fusemblr)
+[![Anaconda-Server Badge](https://anaconda.org/samtobam/fusemblr/badges/latest_release_date.svg)](https://anaconda.org/samtobam/fusemblr)
+
 fusemblr is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
 
 fusemblr was designed for the Fusarium consortium assembly project (hence the name) in order to improve the automated steps during genome assembly <br/>
