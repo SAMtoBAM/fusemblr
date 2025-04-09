@@ -3,7 +3,7 @@ set -euo pipefail
 
 version="v1"
 
-##A wrapper for the fusarium assembly project = fusembly (like fusilli; the worst pasta invented)
+##A wrapper for the fusarium assembly project = fusemblr (like fusilli; the worst pasta invented)
 
 ##this pipeline has 4 main steps:::
 ## STEP 1: Downsampling on raw ONT reads (filtlong)
@@ -29,9 +29,9 @@ version="v1"
 ##	fastp (quality control of illumina data used for nextpolish)
 
 
-## RUN TO CREATE: mamba create -n fusembly ratatosk bioconda::filtlong bioconda::flye bioconda::fastp nextpolish2 bioconda::seqkit
+## RUN TO CREATE: mamba create -n fusemblr ratatosk bioconda::filtlong bioconda::flye bioconda::fastp nextpolish2 bioconda::seqkit
 
-#conda activate fusembly
+#conda activate fusemblr
 
 ##modify the maximum value for minoverlap in flye (making 200kb..the N95 of a read dataset shouldn't exceed that)
 #sed -i 's/v, 1000, 10000)/v, 1000, 200000)/g' $CONDA_PREFIX/lib/python3.*/site-packages/flye/main.py
@@ -52,7 +52,7 @@ minsize="5000"
 coverage="100"
 minovl=""
 prefix=""
-output="fusembly_output"
+output="fusemblr_output"
 help="nohelp"
 
 ## to clean up a bunch of output from the tools in order to reduce all the unnecessary output
@@ -126,9 +126,9 @@ case "$key" in
 	-h|--help)
 	echo "
 	
-	fusembly (version: ${version})
+	fusemblr (version: ${version})
  
-	fusembly -n nanopore.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz -g 70000000
+	fusemblr -n nanopore.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz -g 70000000
 	
 	Required inputs:
 	-n | --nanopore		Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
@@ -145,7 +145,7 @@ case "$key" in
 	-x | --coverage		The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
 	-v | --minovl		Minimum overlap for Flye assembly (Default: Calculated during run as N95 of reads used for assembly)
 	-p | --prefix		Prefix for output (Default: name of assembly file (-a) before the fasta suffix)
-	-o | --output		Name of output folder for all results (Default: fusembly_output)
+	-o | --output		Name of output folder for all results (Default: fusemblr_output)
 	-c | --cleanup		Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
 	-h | --help		Print this help message
 
@@ -204,9 +204,9 @@ cd ${output}
 ##################################################################
 
 echo "#################################################################"
-echo "################## Fusembly: Starting Fusembly ##################"
+echo "################## fusemblr: Starting fusemblr ##################"
 echo "#################################################################"
-echo "################## Fusembly: Step 1: Downsampling ONT reads"
+echo "################## fusemblr: Step 1: Downsampling ONT reads"
 
 
 ##make a directory for placing the downsampled output
@@ -220,7 +220,7 @@ filtlong --min_length ${minsize} -t ${target} --length_weight ${weightlen} ${nan
 ###################### 2. READ POLISHING WITH RATAOSK #####################
 ###########################################################################
 
-echo "################## Fusembly: Step 2: Polishing ONT reads"
+echo "################## fusemblr: Step 2: Polishing ONT reads"
 
 
 ## create directory for output of reads
@@ -246,7 +246,7 @@ fi
 ################### STEP 3. ASSEMBLY WITH FLYE ##################
 #################################################################
 
-echo "################## Fusembly: Step 3: Assembling ONT reads"
+echo "################## fusemblr: Step 3: Assembling ONT reads"
 
 
 ## create a variable that saves these variable in the naming scheme
@@ -265,7 +265,7 @@ cp flye_assembly/assembly.fasta flye_assembly/${assembly}.fa
 if [[  $hifi != "" ]]
 then
 
-echo "################## Fusembly: Step 4: Polishing assembly with Hifi"
+echo "################## fusemblr: Step 4: Polishing assembly with Hifi"
 
 mkdir flye_assembly.nextpolish2/
 
@@ -297,4 +297,4 @@ cp flye_assembly/${assembly}.fa ${prefix}.fa
 fi
 
 
-echo "################## Fusembly: Thanks for using Fusembly"
+echo "################## fusemblr: Thanks for using fusemblr"
