@@ -27,3 +27,10 @@ Fusembly was designed for the Fusarium consortium assembly project (hence the na
 	-o | --output		Name of output folder for all results (default: fusembly_output)
 	-c | --cleanup		Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
 	-h | --help		Print this help message
+
+
+
+
+<p align="center" >
+    <img src="https://github.com/SAMtoBAM/PAQman/blob/main/figures/fusembly_schematic.svg" width=70%>
+</p>
