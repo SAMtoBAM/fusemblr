@@ -16,7 +16,7 @@ Fusembly was designed for the Fusarium consortium assembly project (hence the na
 	-g | --genomesize	Estimation of genome size, required for downsampling and assembly
 
 	Recommended inputs:
-	-h | --hifi		Pacbio HiFi reads required for assembly polishing with NextPolish2
+	-h | --hifi		Pacbio HiFi reads required for assembly polishing with NextPolish2 (Recommended if available)
 	-t | --threads		Number of threads for tools that accept this option (default: 1)
 	
 	Optional parameters:
