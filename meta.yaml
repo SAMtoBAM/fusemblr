@@ -1,16 +1,16 @@
 package:
-  name: fusembly
+  name: fusemblr
   version: "1.0.0"  # Change this to your desired version
 
 source:
-  git_url: https://github.com/samtobam/fusembly.git
+  git_url: https://github.com/samtobam/fusemblr.git
   git_rev: main
 
 build:
   number: 0 # Increment with each new build
   scripts:
     - python=3.8.*
-    - bin/fusembly
+    - bin/fusemblr
     - bash post-link.sh
 
 requirements:
@@ -24,8 +24,8 @@ requirements:
 
 test:
   commands:
-    - "fusembly.sh --help"
+    - "fusemblr.sh --help"
 
 about:
-  home: "https://github.com/samtobam/fusembly"
+  home: "https://github.com/samtobam/fusemblr"
   summary: "Assembly pipeline designed for Nanopore reads"
