@@ -1,13 +1,26 @@
 # fusemblr
 fusemblr is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
 
-fusemblr was designed for the Fusarium consortium assembly project (hence the name) in order to improve the automated steps during genome assembly
+fusemblr was designed for the Fusarium consortium assembly project (hence the name) in order to improve the automated steps during genome assembly <br/>
+The pipeline using Nanopore (the longer and more the better) and paired-end illumina reads (PacBio is optional but recommended)
+
+Pipeline in 4 steps: <br/>
+1. Downsampling of reads to a designated coverage using Filtlong (Default: 100X; appears to help using this coverage)
+2. Polishing of downsampled reads with the paired-end illumina reads using Ratatosk
+3. Assembly with Flye (modified the hard coded maximium value for the minimum overlap threshold; by default the minimum overlap value is calculated as the N95)
+4. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using NextPolish2
+
+
+## Easy installation
+
+	conda install samtobam::fusemblr
 
 
 
+## How to run
 
  
-	fusemblr -n nanopore.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz -g 70000000
+	fusemblr.sh -n nanopore.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz -g 70000000
 	
 	Required inputs:
 	-n | --nanopore		Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
