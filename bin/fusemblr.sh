@@ -177,9 +177,15 @@ nanoporepath=$( realpath ${nanopore} )
 pair1path=$( realpath ${pair1} )
 pair2path=$( realpath ${pair2} )
 
+#check if the files given actually exist
+[ ! -f "${nanoporepath}" ] && echo "ERROR: Cannot find path to nanopore reads provided by -n; check path is correct and file exists" && exit
+[ ! -f "${pair1path}" ] && echo "ERROR: Cannot find path to illumina reads provided by -1; check path is correct and file exists" && exit
+[ ! -f "${pair2path}" ] && echo "ERROR: Cannot find path to illumina reads provided by -2; check path is correct and file exists" && exit
+
 if [[  $hifi != "" ]]
 then
 hifipath=$( realpath ${hifi} )
+[ ! -f "${hifipath}" ] && echo "ERROR: Cannot find path to Pacbio Hifi reads provided by -h; check path is correct and file exists" && exit
 fi
 
 
@@ -195,6 +201,7 @@ readstats=$( echo "min${minsize2}kb_${coverage}X_weightlen${weightlen}" )
 ## converts size of genome to Mb
 size2=$( echo $genomesize | awk '{print $1/1000000}' )
 
+[ -d "${output}" ] && echo "ERROR: output folder already exists" && exit
 
 mkdir ${output}
 cd ${output}
