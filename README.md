@@ -1,4 +1,8 @@
-# fusemblr
+<p align="center" >
+    <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/logo/fusemblr_logo.svg" width=100%>
+</p>
+
+
 [![Zenodo DOI](https://zenodo.org/badge/963417762.svg)](https://doi.org/10.5281/zenodo.15190276)
 [![Anaconda_version](https://anaconda.org/samtobam/fusemblr/badges/version.svg)](https://anaconda.org/samtobam/fusemblr)
 [![Anaconda_platforms](https://anaconda.org/samtobam/fusemblr/badges/platforms.svg)](https://anaconda.org/samtobam/fusemblr)
