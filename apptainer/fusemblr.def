@@ -17,11 +17,11 @@ From: quay.io/centos/centos:stream9
     conda config --add channels conda-forge
 
     # Install your Conda package
-    conda create -n paqman samtobam::fusemblr 
+    conda create -n fusemblr samtobam::fusemblr 
 
 %environment
-    export PATH="/opt/conda/envs/paqman/bin:/opt/conda/bin:$PATH"
-    source activate paqman
+    export PATH="/opt/conda/envs/fusemblr/bin:/opt/conda/bin:$PATH"
+    source activate fusemblr
 
 %labels
    Author Samuel O'Donnell
