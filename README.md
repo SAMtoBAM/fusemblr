@@ -9,16 +9,18 @@
 [![Anaconda_downloads](https://anaconda.org/samtobam/fusemblr/badges/downloads.svg)](https://anaconda.org/samtobam/fusemblr)
 [![Anaconda-Server Badge](https://anaconda.org/samtobam/fusemblr/badges/latest_release_date.svg)](https://anaconda.org/samtobam/fusemblr)
 
-fusemblr is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
+<i>fusemblr</i> is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
 
-fusemblr was designed for the Fusarium consortium assembly project (hence the name) in order to improve the automated steps during genome assembly <br/>
-The pipeline using Nanopore (the longer and more the better) and paired-end illumina reads (PacBio is optional but recommended)
+<i>fusemblr</i> was designed for the <i>Fusarium oxysporum</i> assembly project (hence the name) <br/>
+The pipeline using Nanopore (the longer and higher coverage the better) and paired-end illumina reads (PacBio is optional but recommended) <br/>
 
 Pipeline in 4 steps: <br/>
-1. Downsampling of reads to a designated coverage using Filtlong (Default: 100X; appears to help using this coverage)
-2. Polishing of downsampled reads with the paired-end illumina reads using Ratatosk
-3. Assembly with Flye (modified the hard coded maximium value for the minimum overlap threshold; by default the minimum overlap value is calculated as the N95)
-4. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using NextPolish2
+1. Downsampling of reads to a designated coverage using <i>Filtlong</i> (Default: 100X; appears to help using this coverage)
+2. Polishing of downsampled reads with the paired-end illumina reads using <i>Ratatosk</i>
+3. Assembly with <i>Flye</i> <br/>
+   &nbsp; &nbsp; <i>removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) <br/>
+   &nbsp; &nbsp; by default the minimum overlap value is automatically provided as the read N95 after polishing</i>
+5. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using <i>NextPolish2</i>
 
 
 ## Easy installation
@@ -57,3 +59,10 @@ Pipeline in 4 steps: <br/>
 <p align="center" >
     <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/figures/fusemblr_schematic.svg" width=70%>
 </p>
+
+
+
+Following assembly it is recommended that you run [PAQman](https://github.com/SAMtoBAM/PAQman) on your resulting assembly to check the quality <br/>
+This can also help you compare any assemblies you have to check for the best.
+
+
