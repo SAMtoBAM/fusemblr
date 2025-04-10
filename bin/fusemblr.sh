@@ -230,12 +230,12 @@ Ratatosk correct -v -Q 90 -c ${threads} -G -s $( ls ${pair1path} ${pair2path} ) 
 mv ratatosk_ont/${prefix}.${readstats}.ratatosk.fastq.gz ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
 
 ##get some stats
-seqkit stats -N 50,90,95 --threads ${threads} ratatosk_ont/${strain}.${readstats}.ratatosk.fq.gz > ratatosk_ont/${strain}.${readstats}.ratatosk.stats.tsv
+seqkit stats -N 50,90,95 --threads ${threads} ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz > ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv
 
 ###get the read N90 to set as a variables in flye
 if [[ $minovl == "" ]]
 then
-minovl=$( tail -n1 ratatosk_ont/${strain}.${readstats}.ratatosk.stats.tsv | awk '{print $11}' | sed 's/,//g' )
+minovl=$( tail -n1 ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv | awk '{print $11}' | sed 's/,//g' )
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
 else
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
