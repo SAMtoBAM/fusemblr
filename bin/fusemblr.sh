@@ -3,7 +3,7 @@ set -euo pipefail
 
 version="v1"
 
-##A wrapper for the fusarium assembly project = fusemblr (like fusilli; the worst pasta invented)
+##A wrapper for the fusarium assembly project = fusemblr (not the best name but hey, it was almost fusembly, like fusilli; the worst pasta invented)
 
 ##this pipeline has 4 main steps:::
 ## STEP 1: Downsampling on raw ONT reads (filtlong)
