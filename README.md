@@ -14,7 +14,7 @@
 <i>fusemblr</i> was designed for the <i>Fusarium oxysporum</i> assembly project (hence the name) <br/>
 The pipeline uses Nanopore (the longer and higher coverage the better) and paired-end illumina reads (PacBio is optional but recommended) <br/>
 
-Pipeline in 4 steps: <br/>
+Pipeline in 5 steps: <br/>
 1. Downsampling of reads to a designated coverage using <i>Filtlong</i> (Default: 100X; appears to help using this coverage)
 2. Polishing of downsampled reads with the paired-end illumina reads using <i>Ratatosk</i>
 3. Assembly with <i>Flye</i> <br/>
