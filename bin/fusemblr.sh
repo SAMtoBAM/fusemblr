@@ -5,31 +5,29 @@ version="v1"
 
 ##A wrapper for the fusarium assembly project = fusemblr (not the best name but hey, it was almost fusembly, like fusilli; the worst pasta invented)
 
-##this pipeline has 4 main steps:::
+##this pipeline has 5 main steps:
 ## STEP 1: Downsampling on raw ONT reads (Filtlong)
 ## STEP 2: Polishing of raw ONT reads with paired end illumina data (Ratatosk)
 ## STEP 3: Assembly of polished ONT reads (Flye; modified to allow for larger minimum overlap values)
 ## Step 4: Polishing of assembly using Pacbio (NextPolish2; optional)
 ## Step 5: Filtering, reordering and renaming (Seqkit)
 
-##############################################################
-################ -1. CREATING THE ENVIRONMENT ################
-##############################################################
+#####################################################################################
+############# STEP -1. CREATING THE ENVIRONMENT. NOT ACTUALLY USED NOW ##############
+#####################################################################################
 
 ##environment 
 ##installing
-##	Ratatosk (raw read polisher)
+## Ratatosk (raw read polisher)
+## filtlong (kmer based long-read downsampling/filtering tool)
+## seqkit (many uses)
+## flye (assembler)
+## nextpolish2 (long-read polisher for use with pacbio hifi is available)
+## fastp (quality control of illumina data used for nextpolish2)
+## minimap2 (read alignment for nextpolish2)
+## samtools (read alignment for nextpolish2)
 
-##	filtlong (kmer based long-read downsampling/filtering tool)
-
-##	seqkit (many uses)
-
-##	flye (assembler)
-
-##	nextpolish2 (long-read polisher for use with pacbio hifi is available)
-##	fastp (quality control of illumina data used for nextpolish)
-
-## RUN TO CREATE: mamba create -n fusemblr ratatosk bioconda::filtlong bioconda::flye bioconda::fastp nextpolish2 bioconda::seqkit
+# mamba create -n fusemblr ratatosk bioconda::filtlong bioconda::flye bioconda::fastp nextpolish2 bioconda::seqkit bioconda::minimap2 bioconda::samtools
 #conda activate fusemblr
 
 ##modify the maximum value for minoverlap in flye (making 200kb..the N95 of a read dataset shouldn't exceed that)
@@ -317,5 +315,8 @@ echo "################## fusemblr: Step 5: Filtering, ordering and renaming"
 ##filter out any sequences smaller than 10kb, sort by length and then rename as numbered contig in order of largest to smallest (1 being the largest)
 seqkit seq -m 10000 ${prefix}.prefilter.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.fa
 
+#####################################################################
+############################# FINISHED  #############################
+#####################################################################
 
 echo "################## fusemblr: Thanks for using fusemblr"
