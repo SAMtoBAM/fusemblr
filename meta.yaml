@@ -21,6 +21,8 @@ requirements:
   - bioconda::fastp=0.24.0
   - bioconda::nextpolish2=0.2.1
   - bioconda::seqkit=2.10.0
+  - bioconda::samtools=1.21
+  - bioconda::minimap2=2.28
 
 test:
   commands:
