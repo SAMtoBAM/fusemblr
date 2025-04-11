@@ -6,10 +6,11 @@ version="v1"
 ##A wrapper for the fusarium assembly project = fusemblr (not the best name but hey, it was almost fusembly, like fusilli; the worst pasta invented)
 
 ##this pipeline has 4 main steps:::
-## STEP 1: Downsampling on raw ONT reads (filtlong)
+## STEP 1: Downsampling on raw ONT reads (Filtlong)
 ## STEP 2: Polishing of raw ONT reads with paired end illumina data (Ratatosk)
 ## STEP 3: Assembly of polished ONT reads (Flye; modified to allow for larger minimum overlap values)
 ## Step 4: Polishing of assembly using Pacbio (NextPolish2; optional)
+## Step 5: Filtering, reordering and renaming (Seqkit)
 
 ##############################################################
 ################ -1. CREATING THE ENVIRONMENT ################
