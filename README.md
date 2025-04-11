@@ -12,7 +12,7 @@
 <i>fusemblr</i> is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
 
 <i>fusemblr</i> was designed for the <i>Fusarium oxysporum</i> assembly project (hence the name) <br/>
-The pipeline using Nanopore (the longer and higher coverage the better) and paired-end illumina reads (PacBio is optional but recommended) <br/>
+The pipeline uses Nanopore (the longer and higher coverage the better) and paired-end illumina reads (PacBio is optional but recommended) <br/>
 
 Pipeline in 4 steps: <br/>
 1. Downsampling of reads to a designated coverage using <i>Filtlong</i> (Default: 100X; appears to help using this coverage)
@@ -62,7 +62,7 @@ Pipeline in 4 steps: <br/>
 
 
 
-Following assembly it is recommended that you run [PAQman](https://github.com/SAMtoBAM/PAQman) on your resulting assembly to check the quality <br/>
+Following assembly it is recommended that you run [PAQman](https://github.com/SAMtoBAM/PAQman) on your resulting assembly to comprehensively check the quality <br/>
 This can also help you compare any assemblies you have to check for the best.
 
 
