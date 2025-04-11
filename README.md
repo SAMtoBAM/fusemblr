@@ -20,7 +20,8 @@ Pipeline in 4 steps: <br/>
 3. Assembly with <i>Flye</i> <br/>
    &nbsp; &nbsp; <i>removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) <br/>
    &nbsp; &nbsp; by default the minimum overlap value is automatically provided as the read N95 after polishing</i>
-5. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using <i>NextPolish2</i>
+4. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using <i>NextPolish2</i>
+5: Filtering (minimum length 10kb), reordering and renaming using <i>Seqkit</i> and <i>awk</i>
 
 
 ## Easy installation
