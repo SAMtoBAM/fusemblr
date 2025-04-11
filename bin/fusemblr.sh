@@ -297,14 +297,24 @@ rm 4.flye_assembly.nextpolish2/minimap_pacbio.sort.*
 rm 4.flye_assembly.nextpolish2/*.yak
 
 ##convert the final assembly to a simple name
-cp 4.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa ${prefix}.fa
+cp 4.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa ${prefix}.prefilter.fa
 
 else
 
 ##convert the final assembly to a simple name
-cp 3.flye_assembly/${assembly}.fa ${prefix}.fa
+cp 3.flye_assembly/${assembly}.fa ${prefix}.prefilter.fa
 
 fi
+
+#####################################################################
+############ STEP 5. FILTERING, REORDERING AND RENAMING  ############
+#####################################################################
+
+
+echo "################## fusemblr: Step 5: Filtering, ordering and renaming"
+
+##filter out any sequences smaller than 10kb, sort by length and then rename as numbered contig in order of largest to smallest (1 being the largest)
+seqkit seq -m 10000 ${prefix}.prefilter.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.fa
 
 
 echo "################## fusemblr: Thanks for using fusemblr"
