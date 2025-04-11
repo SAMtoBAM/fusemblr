@@ -28,9 +28,7 @@ version="v1"
 ##	nextpolish2 (long-read polisher for use with pacbio hifi is available)
 ##	fastp (quality control of illumina data used for nextpolish)
 
-
 ## RUN TO CREATE: mamba create -n fusemblr ratatosk bioconda::filtlong bioconda::flye bioconda::fastp nextpolish2 bioconda::seqkit
-
 #conda activate fusemblr
 
 ##modify the maximum value for minoverlap in flye (making 200kb..the N95 of a read dataset shouldn't exceed that)
@@ -217,10 +215,10 @@ echo "################## fusemblr: Step 1: Downsampling ONT reads"
 
 
 ##make a directory for placing the downsampled output
-mkdir filtlong_ont
+mkdir 1.filtlong_ont
 
 ##now run filtlong with the settings
-filtlong --min_length ${minsize} -t ${target} --length_weight ${weightlen} ${nanoporepath} | gzip > filtlong_ont/${prefix}.${readstats}.fq.gz
+filtlong --min_length ${minsize} -t ${target} --length_weight ${weightlen} ${nanoporepath} | gzip > 1.filtlong_ont/${prefix}.${readstats}.fq.gz
 
 
 ###########################################################################
@@ -231,18 +229,21 @@ echo "################## fusemblr: Step 2: Polishing ONT reads"
 
 
 ## create directory for output of reads
-mkdir ratatosk_ont
+mkdir 2.ratatosk_ont
 ## increase base quality score minimum to 90 due to high quality reads (-Q)
-Ratatosk correct -v -Q 90 -c ${threads} -G -s $( ls ${pair1path} ${pair2path} ) -l filtlong_ont/${prefix}.${readstats}.fq.gz -o ratatosk_ont/${prefix}.${readstats}.ratatosk > ratatosk.log
-mv ratatosk_ont/${prefix}.${readstats}.ratatosk.fastq.gz ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
+Ratatosk correct -v -Q 90 -c ${threads} -G -s $( ls ${pair1path} ${pair2path} ) -l 1.filtlong_ont/${prefix}.${readstats}.fq.gz -o 2.ratatosk_ont/${prefix}.${readstats}.ratatosk > ratatosk.fusemblr.log
+##modify output file name
+mv 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fastq.gz 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
+##move log file into folder
+mv ratatosk.fusemblr.log 2.ratatosk_ont/
 
 ##get some stats
-seqkit stats -N 50,90,95 --threads ${threads} ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz > ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv
+seqkit stats -N 50,90,95 --threads ${threads} 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz > 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv
 
 ###get the read N90 to set as a variables in flye
 if [[ $minovl == "" ]]
 then
-minovl=$( tail -n1 ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv | awk '{print $11}' | sed 's/,//g' )
+minovl=$( tail -n1 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv | awk '{print $11}' | sed 's/,//g' )
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
 else
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
@@ -260,9 +261,11 @@ echo "################## fusemblr: Step 3: Assembling ONT reads"
 assembly="${prefix}.${readstats}.ratatosk.flye_nanocorr_${size2}Mb_${coverage}X_minovl${minovl2}k"
 
 ## run flye
-flye --nano-corr ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -m ${minovl} --genome-size ${genomesize} --asm-coverage ${coverage} --threads ${threads} -o flye_assembly/ > flye.log
+flye --nano-corr 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -m ${minovl} --genome-size ${genomesize} --asm-coverage ${coverage} --threads ${threads} -o 3.flye_assembly/ > flye.fusemblr.log
 ## make sure the assembly file is named is a simple format
-cp flye_assembly/assembly.fasta flye_assembly/${assembly}.fa
+cp 3.flye_assembly/assembly.fasta 3.flye_assembly/${assembly}.fa
+##move log file into folder
+mv flye.fusemblr.log 3.flye_assembly/flye.fusemblr.log
 
 ##################################################################
 ############ STEP 4. ASSEMBLY POLISHING WITH PB HIFI  ############
@@ -274,32 +277,32 @@ then
 
 echo "################## fusemblr: Step 4: Polishing assembly with Hifi"
 
-mkdir flye_assembly.nextpolish2/
+mkdir 4.flye_assembly.nextpolish2/
 
 ## prepare long-read alignments to assembly
-minimap2 -ax map-hifi -t ${threads} flye_assembly/${assembly}.fa ${hifipath} | samtools sort -@ 4 -o flye_assembly.nextpolish2/minimap_pacbio.sort.bam -
-samtools index flye_assembly.nextpolish2/minimap_pacbio.sort.bam
+minimap2 -ax map-hifi -t ${threads} 4.flye_assembly.nextpolish2/${assembly}.fa ${hifipath} | samtools sort -@ 4 -o 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam -
+samtools index 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam
 
 ## prepare illumina data
 fastp -5 -3 -n 0 -f 5 -F 5 -t 5 -T 5 -q 20 -i ${pair1path} -I ${pair2path} -o raw_illumina/${prefix}.R1.clean.fq.gz -O raw_illumina/${prefix}.R2.clean.fq.gz
 ## produce a 21 and 31-mer dataset (needs a lot of memory)
-yak count -o flye_assembly.nextpolish2/k21.yak -k 21 -b 37 <(zcat raw_illumina/${prefix}.R*.clean.fq.gz) <(zcat raw_illumina/${prefix}.R*.clean.fq.gz)
-yak count -o flye_assembly.nextpolish2/k31.yak -k 31 -b 37 <(zcat raw_illumina/${prefix}.R*.clean.fq.gz) <(zcat raw_illumina/${prefix}.R*.clean.fq.gz)
+yak count -o 4.flye_assembly.nextpolish2/k21.yak -k 21 -b 37 <(zcat raw_illumina/${prefix}.R*.clean.fq.gz) <(zcat raw_illumina/${prefix}.R*.clean.fq.gz)
+yak count -o 4.flye_assembly.nextpolish2/k31.yak -k 31 -b 37 <(zcat raw_illumina/${prefix}.R*.clean.fq.gz) <(zcat raw_illumina/${prefix}.R*.clean.fq.gz)
 
 ## now run Nextpolish with the inputs generated above
-nextPolish2 -t ${threads} flye_assembly.nextpolish2/minimap_pacbio.sort.bam flye_assembly/${assembly}.fa flye_assembly.nextpolish2/k21.yak flye_assembly.nextpolish2/k31.yak > flye_assembly.nextpolish2/${assembly}.nextpolish2.fa
+nextPolish2 -t ${threads} 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam 4.flye_assembly.nextpolish2/${assembly}.fa 4.flye_assembly.nextpolish2/k21.yak 4.flye_assembly.nextpolish2/k31.yak > 4.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa
 
 ## remove intermediate (alignment/yak) files that take up a lot of space
-rm flye_assembly.nextpolish2/minimap_pacbio.sort.*
-rm flye_assembly.nextpolish2/*.yak
+rm 4.flye_assembly.nextpolish2/minimap_pacbio.sort.*
+rm 4.flye_assembly.nextpolish2/*.yak
 
 ##convert the final assembly to a simple name
-cp flye_assembly.nextpolish2/${assembly}.nextpolish2.fa ${prefix}.fa
+cp 4.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa ${prefix}.fa
 
 else
 
 ##convert the final assembly to a simple name
-cp flye_assembly/${assembly}.fa ${prefix}.fa
+cp 3.flye_assembly/${assembly}.fa ${prefix}.fa
 
 fi
 
