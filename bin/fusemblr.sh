@@ -257,7 +257,7 @@ echo "################## fusemblr: Step 3: Assembling ONT reads"
 
 
 ## create a variable that saves these variable in the naming scheme
-assembly="${prefix}.${readstats}.ratatosk.flye_nanocorr_${size2}Mb_${cov}X_minovl${minovl2}k"
+assembly="${prefix}.${readstats}.ratatosk.flye_nanocorr_${size2}Mb_${coverage}X_minovl${minovl2}k"
 
 ## run flye
 flye --nano-corr ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -m ${minovl} --genome-size ${genomesize} --asm-coverage ${coverage} --threads ${threads} -o flye_assembly/ > flye.log
