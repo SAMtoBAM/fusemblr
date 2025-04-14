@@ -141,7 +141,7 @@ case "$key" in
 	-m | --minsize		Minimum size of reads to keep during downsampling (Default: 5000)
 	-x | --coverage		The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
 	-v | --minovl		Minimum overlap for Flye assembly (Default: Calculated during run as N95 of reads used for assembly)
-	-p | --prefix		Prefix for output (Default: name of assembly file (-a) before the fasta suffix)
+	-p | --prefix		Prefix for output (Default: name of nanopore reads file (-a) before the fastq suffix)
 	-o | --output		Name of output folder for all results (Default: fusemblr_output)
 	-c | --cleanup		Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
 	-h | --help		Print this help message
@@ -167,7 +167,7 @@ done
 
 ##redefining some variables and checking
 ##if prefix wasn't defined, grab the prefix of the nanopore reads
-[[ $prefix == "" ]] && prefix=$( echo ${nanopore} | awk -F "/" '{print $NF}' | sed 's/\.fasta\.gz$//' | sed 's/\.fa\.gz$//' | sed 's/\.fasta$//' | sed 's/\.fa$//' | sed 's/\.fna$//' )
+[[ $prefix == "" ]] && prefix=$( echo ${nanopore} | awk -F "/" '{print $NF}' | sed 's/\.fastq\.gz$//' | sed 's/\.fq\.gz$//' | sed 's/\.fastq$//' | sed 's/\.fq$//' )
 
 ##paths to raw data
 nanoporepath=$( realpath ${nanopore} )
@@ -279,7 +279,7 @@ echo "################## fusemblr: Step 4: Polishing assembly with Hifi"
 mkdir 4.flye_assembly.nextpolish2/
 
 ## prepare long-read alignments to assembly
-minimap2 -ax map-hifi -t ${threads} 4.flye_assembly.nextpolish2/${assembly}.fa ${hifipath} | samtools sort -@ 4 -o 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam -
+minimap2 -ax map-hifi -t ${threads} 3.flye_assembly/${assembly}.fa ${hifipath} | samtools sort -@ 4 -o 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam -
 samtools index 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam
 
 ## prepare illumina data
@@ -289,7 +289,7 @@ yak count -o 4.flye_assembly.nextpolish2/k21.yak -k 21 -b 37 <(zcat raw_illumina
 yak count -o 4.flye_assembly.nextpolish2/k31.yak -k 31 -b 37 <(zcat raw_illumina/${prefix}.R*.clean.fq.gz) <(zcat raw_illumina/${prefix}.R*.clean.fq.gz)
 
 ## now run Nextpolish with the inputs generated above
-nextPolish2 -t ${threads} 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam 4.flye_assembly.nextpolish2/${assembly}.fa 4.flye_assembly.nextpolish2/k21.yak 4.flye_assembly.nextpolish2/k31.yak > 4.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa
+nextPolish2 -t ${threads} 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam 3.flye_assembly/${assembly}.fa 4.flye_assembly.nextpolish2/k21.yak 4.flye_assembly.nextpolish2/k31.yak > 4.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa
 
 ## remove intermediate (alignment/yak) files that take up a lot of space
 rm 4.flye_assembly.nextpolish2/minimap_pacbio.sort.*
