@@ -58,7 +58,7 @@ Pipeline in 5 steps: <br/>
 
 
 <p align="center" >
-    <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/figures/fusemblr_schematic.svg" width=70%>
+    <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/figures/fusemblr_schematic.png" width=70%>
 </p>
 
 
