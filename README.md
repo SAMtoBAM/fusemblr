@@ -1,5 +1,5 @@
 <p align="center" >
-    <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/logo/fusemblr_logo.svg" width=100%>
+    <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/logo/fusemblr.png" width=100%>
 </p>
 
 
