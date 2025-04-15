@@ -283,10 +283,10 @@ minimap2 -ax map-hifi -t ${threads} 3.flye_assembly/${assembly}.fa ${hifipath} |
 samtools index 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam
 
 ## prepare illumina data
-fastp -5 -3 -n 0 -f 5 -F 5 -t 5 -T 5 -q 20 -i ${pair1path} -I ${pair2path} -o raw_illumina/${prefix}.R1.clean.fq.gz -O raw_illumina/${prefix}.R2.clean.fq.gz
+fastp -5 -3 -n 0 -f 5 -F 5 -t 5 -T 5 -q 20 -i ${pair1path} -I ${pair2path} -o 4.flye_assembly.nextpolish2/${prefix}.R1.clean.fq.gz -O 4.flye_assembly.nextpolish2/${prefix}.R2.clean.fq.gz
 ## produce a 21 and 31-mer dataset (needs a lot of memory)
-yak count -o 4.flye_assembly.nextpolish2/k21.yak -k 21 -b 37 <(zcat raw_illumina/${prefix}.R*.clean.fq.gz) <(zcat raw_illumina/${prefix}.R*.clean.fq.gz)
-yak count -o 4.flye_assembly.nextpolish2/k31.yak -k 31 -b 37 <(zcat raw_illumina/${prefix}.R*.clean.fq.gz) <(zcat raw_illumina/${prefix}.R*.clean.fq.gz)
+yak count -o 4.flye_assembly.nextpolish2/k21.yak -k 21 -b 37 <(zcat 4.flye_assembly.nextpolish2/${prefix}.R*.clean.fq.gz) <(zcat 4.flye_assembly.nextpolish2/${prefix}.R*.clean.fq.gz)
+yak count -o 4.flye_assembly.nextpolish2/k31.yak -k 31 -b 37 <(zcat 4.flye_assembly.nextpolish2/${prefix}.R*.clean.fq.gz) <(zcat 4.flye_assembly.nextpolish2/${prefix}.R*.clean.fq.gz)
 
 ## now run Nextpolish with the inputs generated above
 nextPolish2 -t ${threads} 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam 3.flye_assembly/${assembly}.fa 4.flye_assembly.nextpolish2/k21.yak 4.flye_assembly.nextpolish2/k31.yak > 4.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa
@@ -294,6 +294,7 @@ nextPolish2 -t ${threads} 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam 3.
 ## remove intermediate (alignment/yak) files that take up a lot of space
 rm 4.flye_assembly.nextpolish2/minimap_pacbio.sort.*
 rm 4.flye_assembly.nextpolish2/*.yak
+rm 4.flye_assembly.nextpolish2/${prefix}.R*.clean.fq.gz
 
 ##convert the final assembly to a simple name
 cp 4.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa ${prefix}.prefilter.fa
