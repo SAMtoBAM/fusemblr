@@ -295,6 +295,8 @@ nextPolish2 -t ${threads} 4.flye_assembly.nextpolish2/minimap_pacbio.sort.bam 3.
 rm 4.flye_assembly.nextpolish2/minimap_pacbio.sort.*
 rm 4.flye_assembly.nextpolish2/*.yak
 rm 4.flye_assembly.nextpolish2/${prefix}.R*.clean.fq.gz
+rm fastp.html
+rm fastp.json
 
 ##convert the final assembly to a simple name
 cp 4.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa ${prefix}.prefilter.fa
