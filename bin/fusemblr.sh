@@ -272,7 +272,7 @@ cp 3a.flye_assembly/assembly.fasta 3a.flye_assembly/${assembly}.fa
 mv flye.fusemblr.log 3a.flye_assembly/flye.fusemblr.log
 
 #################################################################
-################## STEP 3a. ASSEMBLY WITH FLYE ##################
+################ STEP 3b. ASSEMBLY WITH HIFIASM #################
 #################################################################
 
 echo "################## fusemblr: Step 3b: Assembling ONT reads (Hifiasm)"
@@ -285,9 +285,9 @@ assembly="${prefix}.${readstats}.ratatosk.hifiasm"
 if [[  $hifi != "" ]]
 then
 ## run hifiasm
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont rataosk_ont/${prefix}.min5kb_100X_weightlen5.rataosk.fq.gz
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
 else
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ul rataosk_ont/${prefix}.min5kb_100X_weightlen5.rataosk.fq.gz ${hifipath}
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ul 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz ${hifipath}
 fi
 ## convert gfa to fasta
 awk '/^S/{print ">"$2;print $3}' 3b.hifiasm/${prefix}.bp.p_ctg.gfa > 3b.hifiasm/${prefix}.hifiasm.fa
