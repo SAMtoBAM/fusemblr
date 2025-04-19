@@ -49,6 +49,7 @@ Pipeline in 5 steps: <br/>
 	-m | --minsize		Minimum size of reads to keep during downsampling (Default: 5000)
 	-x | --coverage		The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
 	-v | --minovl		Minimum overlap for Flye assembly,  (Default: Calculated during run as N95 of reads used for assembly)
+ 	-w | --weight		The weighting used by Filtlong for selecting reads; balancing the length vs the quality (Default: 5)
 	-p | --prefix		Prefix for output (default: name of assembly file (-a) before the fasta suffix)
 	-o | --output		Name of output folder for all results (default: fusemblr_output)
 	-c | --cleanup		Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
