@@ -199,7 +199,7 @@ minsize2=$( echo ${minsize} | awk '{print $1/1000}' )
 ## number of bases desired by filtlong (think 70000000*coverage)
 target=$( echo $genomesize | awk -v coverage="$coverage" '{print $1*coverage}' )
 ## set a variable string of all the filtlong settings to track the read dataset being used
-readstats=$( echo "min${minsize2}kb_${coverage}X_weightlen${weightlen}" )
+readstats=$( echo "min${minsize2}kb_${coverage}X_weightlen${weight}" )
 ## converts size of genome to Mb
 size2=$( echo $genomesize | awk '{print $1/1000000}' )
 
