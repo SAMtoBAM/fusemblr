@@ -47,6 +47,7 @@ hifi=""
 threads="1"
 minsize="5000"
 coverage="100"
+weight="5"
 minovl=""
 prefix=""
 output="fusemblr_output"
@@ -100,6 +101,11 @@ case "$key" in
 	shift
 	shift
 	;;
+ 	-w|--weight)
+	weight="$2"
+	shift
+	shift
+	;;
 	-v|--minovl)
 	minovl="$2"
 	shift
@@ -141,6 +147,7 @@ case "$key" in
 	-m | --minsize		Minimum size of reads to keep during downsampling (Default: 5000)
 	-x | --coverage		The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
 	-v | --minovl		Minimum overlap for Flye assembly (Default: Calculated during run as N95 of reads used for assembly)
+ 	-w | --weight		The weighting used by Filtlong for selecting reads; balancing the length vs the quality (Default: 5)
 	-p | --prefix		Prefix for output (Default: name of nanopore reads file (-a) before the fastq suffix)
 	-o | --output		Name of output folder for all results (Default: fusemblr_output)
 	-c | --cleanup		Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
@@ -189,8 +196,6 @@ fi
 ##newly defining some variables for output writing
 ## leave as is just setting to kb
 minsize2=$( echo ${minsize} | awk '{print $1/1000}' )
-## weighting given to length over quality (5 is a good balance between length and quality)
-weightlen=5
 ## number of bases desired by filtlong (think 70000000*coverage)
 target=$( echo $genomesize | awk -v coverage="$coverage" '{print $1*coverage}' )
 ## set a variable string of all the filtlong settings to track the read dataset being used
@@ -217,7 +222,7 @@ echo "################## fusemblr: Step 1: Downsampling ONT reads"
 mkdir 1.filtlong_ont
 
 ##now run filtlong with the settings
-filtlong --min_length ${minsize} -t ${target} --length_weight ${weightlen} ${nanoporepath} | gzip > 1.filtlong_ont/${prefix}.${readstats}.fq.gz
+filtlong --min_length ${minsize} -t ${target} --length_weight ${weight} ${nanoporepath} | gzip > 1.filtlong_ont/${prefix}.${readstats}.fq.gz
 
 
 ###########################################################################
