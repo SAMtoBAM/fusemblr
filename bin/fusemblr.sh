@@ -265,11 +265,9 @@ echo "################## fusemblr: Step 3: Assembling ONT reads"
 assembly="${prefix}.${readstats}.ratatosk.flye_nanocorr_${size2}Mb_${coverage}X_minovl${minovl2}k"
 
 ## run flye
-flye --nano-corr 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -m ${minovl} --genome-size ${genomesize} --asm-coverage ${coverage} --threads ${threads} -o 3.flye_assembly/ > flye.fusemblr.log
+flye --nano-corr 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -m ${minovl} --genome-size ${genomesize} --asm-coverage ${coverage} --threads ${threads} -o 3.flye_assembly/
 ## make sure the assembly file is named is a simple format
 cp 3.flye_assembly/assembly.fasta 3.flye_assembly/${assembly}.fa
-##move log file into folder
-mv flye.fusemblr.log 3.flye_assembly/flye.fusemblr.log
 
 ##################################################################
 ############ STEP 4. ASSEMBLY POLISHING WITH PB HIFI  ############
