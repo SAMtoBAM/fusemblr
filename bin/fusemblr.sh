@@ -215,6 +215,9 @@ cd ${output}
 echo "#################################################################"
 echo "################## fusemblr: Starting fusemblr ##################"
 echo "#################################################################"
+
+echo "################## fusemblr: Outputting data to ${output}"
+
 echo "################## fusemblr: Step 1: Downsampling ONT reads"
 
 
