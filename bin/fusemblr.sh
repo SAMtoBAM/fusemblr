@@ -235,16 +235,7 @@ echo "################## fusemblr: Step 2: Polishing ONT reads"
 ## create directory for output of reads
 mkdir 2.ratatosk_ont
 ## increase base quality score minimum to 90 due to high quality reads (-Q)
-## use hifi data also if available
-if [[  $hifi != "" ]]
-then
-Ratatosk correct -v -Q 90 -c ${threads} -G -s $( ls ${pair1path} ${pair2path} ) -a ${hifipath} -l 1.filtlong_ont/${prefix}.${readstats}.fq.gz -o 2.ratatosk_ont/${prefix}.${readstats}.ratatosk > ratatosk.fusemblr.log
-else
 Ratatosk correct -v -Q 90 -c ${threads} -G -s $( ls ${pair1path} ${pair2path} ) -l 1.filtlong_ont/${prefix}.${readstats}.fq.gz -o 2.ratatosk_ont/${prefix}.${readstats}.ratatosk > ratatosk.fusemblr.log
-fi
-
-
-
 ##modify output file name
 mv 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fastq.gz 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
 ##move log file into folder
@@ -253,7 +244,7 @@ mv ratatosk.fusemblr.log 2.ratatosk_ont/
 ##get some stats
 seqkit stats -N 50,90,95 --threads ${threads} 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz > 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv
 
-###get the read N95 to set as a variables in flye
+###get the read N90 to set as a variables in flye
 if [[ $minovl == "" ]]
 then
 minovl=$( tail -n1 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv | awk '{print $11}' | sed 's/,//g' )
