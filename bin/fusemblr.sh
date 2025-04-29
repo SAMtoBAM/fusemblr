@@ -264,9 +264,9 @@ echo "################## fusemblr: Step 3a: Assembling ONT reads with Flye"
 assembly="${prefix}.${readstats}.ratatosk.flye_nanocorr_${size2}Mb_${coverage}X_minovl${minovl2}k"
 
 ## run flye
-flye --nano-corr 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -m ${minovl} --genome-size ${genomesize} --asm-coverage ${coverage} --threads ${threads} -o 3.flye_assembly/
+flye --nano-corr 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -m ${minovl} --genome-size ${genomesize} --asm-coverage ${coverage} --threads ${threads} -o 3a.flye_assembly/
 ## make sure the assembly file is named is a simple format
-cp 3.flye_assembly/assembly.fasta 3.flye_assembly/${assembly}.fa
+cp 3a.flye_assembly/assembly.fasta 3a.flye_assembly/${assembly}.fa
 
 #################################################################
 ################ STEP 3a. ASSEMBLY WITH HIFIASM #################
@@ -277,9 +277,9 @@ echo "################## fusemblr: Step 3b: Assembling ONT reads with Hifiasm"
 if [[  $hifi != "" ]]
 then
 ## run hifiasm
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont rataosk_ont/${prefix}.min5kb_100X_weightlen5.rataosk.fq.gz
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
 else
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ul rataosk_ont/${prefix}.min5kb_100X_weightlen5.rataosk.fq.gz ${hifipath}
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ul 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz ${hifipath}
 fi
 ## convert gfa to fasta
 awk '/^S/{print ">"$2;print $3}' 3b.hifiasm/${prefix}.bp.p_ctg.gfa > 3b.hifiasm/${prefix}.hifiasm.fa
@@ -294,7 +294,7 @@ awk '/^S/{print ">"$2;print $3}' 3b.hifiasm/${prefix}.bp.p_ctg.gfa > 3b.hifiasm/
 if [[  $hifi != "" ]]
 then
 
-echo "################## fusemblr: Step 4: Polishing assembly with Hifi"
+echo "################## fusemblr: Step 4a: Polishing Flye assembly with Hifi"
 
 mkdir 4a.flye_assembly.nextpolish2/
 
@@ -329,7 +329,7 @@ fi
 if [[  $hifi != "" ]]
 then
 
-echo "################## fusemblr: Step 4: Polishing assembly with Hifi"
+echo "################## fusemblr: Step 4b: Polishing hifiasm assembly with Hifi"
 
 mkdir 4b.hifiasm_assembly.nextpolish2/
 
@@ -338,14 +338,10 @@ minimap2 -ax map-hifi -t ${threads} 3b.hifiasm/${prefix}.hifiasm.fa ${hifipath} 
 samtools index 4b.hifiasm_assembly.nextpolish2/minimap_pacbio.sort.bam
 
 ## now run Nextpolish with the inputs generated above
-nextPolish2 -t ${threads} 4b.hifiasm_assembly.nextpolish2/minimap_pacbio.sort.bam 3a.flye_assembly/${assembly}.fa 4b.hifiasm_assembly.nextpolish2/k21.yak 4b.hifiasm_assembly.nextpolish2/k31.yak > 4b.hifiasm_assembly.nextpolish2/${prefix}.hifiasm.nextpolish2.fa
+nextPolish2 -t ${threads} 4b.hifiasm_assembly.nextpolish2/minimap_pacbio.sort.bam 3b.hifiasm/${prefix}.hifiasm.fa k21.yak k31.yak > 4b.hifiasm_assembly.nextpolish2/${prefix}.hifiasm.nextpolish2.fa
 
 ## remove intermediate (alignment/yak) files that take up a lot of space
 rm 4b.hifiasm_assembly.nextpolish2/minimap_pacbio.sort.*
-rm *.yak
-rm ${prefix}.R*.clean.fq.gz
-rm fastp.html
-rm fastp.json
 
 ##convert the final assembly to a simple name
 cp 4b.hifiasm_assembly.nextpolish2/${prefix}.hifiasm.nextpolish2.fa ${prefix}.hifiasm.fa
@@ -356,6 +352,12 @@ else
 cp 3b.hifiasm/${prefix}.hifiasm.fa ${prefix}.hifiasm.fa
 
 fi
+
+##cleaup 
+rm *.yak
+rm ${prefix}.R*.clean.fq.gz
+rm fastp.html
+rm fastp.json
 
 #####################################################################
 ################### STEP 6. ASSEMBLY GAP FILLING  ###################
