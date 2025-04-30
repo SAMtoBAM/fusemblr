@@ -272,38 +272,50 @@ flye --nano-corr 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -m ${minov
 cp 3a.flye_assembly/assembly.fasta 3a.flye_assembly/${assembly}.fa
 
 #################################################################
-################ STEP 3a. ASSEMBLY WITH HIFIASM #################
+################ STEP 3b. ASSEMBLY WITH HIFIASM #################
 #################################################################
 
 echo "################## fusemblr: Step 3b: Assembling ONT reads with Hifiasm"
 
 if [[  $hifi != "" ]]
 then
-## run hifiasm
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
-else
+## if hifi data is present; run hifiasm with hifi data and providing ONT reads as an ultralong dataset
 hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ul 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz ${hifipath}
+else
+## if hifi data is not present; run hifiasm with hifi data only providing ONT reads
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
 fi
 ## convert gfa to fasta
 awk '/^S/{print ">"$2;print $3}' 3b.hifiasm/${prefix}.bp.p_ctg.gfa > 3b.hifiasm/${prefix}.hifiasm.fa
 
 
+#####################################################################
+################### STEP 4. ASSEMBLY GAP FILLING  ###################
+#####################################################################
+
+echo "################## fusemblr: Step 4: Filling gaps in Flye assembly using Hifiasm"
+
+ragtag.py patch -o 4.ragtag_patch -f 25000 3a.flye_assembly/${assembly}.fa 3b.hifiasm/${prefix}.hifiasm.fa
+mv 4.ragtag_patch/ragtag.patch.fasta 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa
+rm 4.ragtag_patch/*.fasta
+
+
 
 ##################################################################
-############ STEP 4. ASSEMBLY POLISHING WITH PB HIFI  ############
+############ STEP 5. ASSEMBLY POLISHING WITH PB HIFI  ############
 ##################################################################
 
 ##flye polishing
 if [[  $hifi != "" ]]
 then
 
-echo "################## fusemblr: Step 4a: Polishing Flye assembly with Hifi"
+echo "################## fusemblr: Step 5: Polishing assembly with Hifi"
 
-mkdir 4a.flye_assembly.nextpolish2/
+mkdir 5.nextpolish2
 
 ## prepare long-read alignments to assembly
-minimap2 -ax map-hifi -t ${threads} 3a.flye_assembly/${assembly}.fa ${hifipath} | samtools sort -@ 4 -o 4a.flye_assembly.nextpolish2/minimap_pacbio.sort.bam -
-samtools index 4a.flye_assembly.nextpolish2/minimap_pacbio.sort.bam
+minimap2 -ax map-hifi -t ${threads} 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa ${hifipath} | samtools sort -@ 4 -o 5.nextpolish2/minimap_pacbio.sort.bam -
+samtools index 5.nextpolish2/minimap_pacbio.sort.bam
 
 ## prepare illumina data
 fastp -5 -3 -n 0 -f 5 -F 5 -t 5 -T 5 -q 20 -i ${pair1path} -I ${pair2path} -o ${prefix}.R1.clean.fq.gz -O ${prefix}.R2.clean.fq.gz
@@ -312,49 +324,13 @@ yak count -o k21.yak -k 21 -b 37 <(zcat ${prefix}.R*.clean.fq.gz) <(zcat ${prefi
 yak count -o k31.yak -k 31 -b 37 <(zcat ${prefix}.R*.clean.fq.gz) <(zcat ${prefix}.R*.clean.fq.gz)
 
 ## now run Nextpolish with the inputs generated above
-nextPolish2 -t ${threads} 4a.flye_assembly.nextpolish2/minimap_pacbio.sort.bam 3a.flye_assembly/${assembly}.fa k21.yak k31.yak > 4a.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa
+nextPolish2 -t ${threads} 5.nextpolish2/minimap_pacbio.sort.bam 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa k21.yak k31.yak > 5.nextpolish2/${prefix}.nextpolish2.fa
 
 ## remove intermediate (alignment/yak) files that take up a lot of space
-rm 4a.flye_assembly.nextpolish2/minimap_pacbio.sort.*
+rm 5.nextpolish2/minimap_pacbio.sort.*
 
-##convert the final assembly to a simple name
-cp 4a.flye_assembly.nextpolish2/${assembly}.nextpolish2.fa ${prefix}.flye.fa
-
-else
-
-##convert the final assembly to a simple name
-cp 3a.flye_assembly/${assembly}.fa ${prefix}.flye.fa
-
-fi
-
-
-##hifiasm polishing
-if [[  $hifi != "" ]]
-then
-
-echo "################## fusemblr: Step 4b: Polishing hifiasm assembly with Hifi"
-
-mkdir 4b.hifiasm_assembly.nextpolish2/
-
-## prepare long-read alignments to assembly
-minimap2 -ax map-hifi -t ${threads} 3b.hifiasm/${prefix}.hifiasm.fa ${hifipath} | samtools sort -@ 4 -o 4b.hifiasm_assembly.nextpolish2/minimap_pacbio.sort.bam -
-samtools index 4b.hifiasm_assembly.nextpolish2/minimap_pacbio.sort.bam
-
-## now run Nextpolish with the inputs generated above
-nextPolish2 -t ${threads} 4b.hifiasm_assembly.nextpolish2/minimap_pacbio.sort.bam 3b.hifiasm/${prefix}.hifiasm.fa k21.yak k31.yak > 4b.hifiasm_assembly.nextpolish2/${prefix}.hifiasm.nextpolish2.fa
-
-## remove intermediate (alignment/yak) files that take up a lot of space
-rm 4b.hifiasm_assembly.nextpolish2/minimap_pacbio.sort.*
-
-##convert the final assembly to a simple name
-cp 4b.hifiasm_assembly.nextpolish2/${prefix}.hifiasm.nextpolish2.fa ${prefix}.hifiasm.fa
-
-else
-
-##convert the final assembly to a simple name
-cp 3b.hifiasm/${prefix}.hifiasm.fa ${prefix}.hifiasm.fa
-
-fi
+##convert the assembly to a simple name
+cp 5.nextpolish2/${prefix}.nextpolish2.fa ${prefix}.prefilter.fa
 
 ##cleaup 
 rm *.yak
@@ -362,16 +338,16 @@ rm ${prefix}.R*.clean.fq.gz
 rm fastp.html
 rm fastp.json
 
-#####################################################################
-################### STEP 6. ASSEMBLY GAP FILLING  ###################
-#####################################################################
+else
 
-echo "################## fusemblr: Step 5: Filling gaps in Flye assembly using Hifiasm"
+##convert the assembly to a simple name
+cp 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa ${prefix}.prefilter.fa
 
-ragtag.py patch -o 5.ragtag_patch -f 25000 ${prefix}.flye.fa ${prefix}.hifiasm.fa
-mv 5.ragtag_patch/ragtag.patch.fasta 5.ragtag_patch/${prefix}.flye.hifiasm_patch.fa
-cp 5.ragtag_patch/${prefix}.flye.hifiasm_patch.fa ${prefix}.flye.hifiasm_patch.fa
-rm 5.ragtag_patch/*.fasta
+fi
+
+
+
+
 
 #####################################################################
 ############ STEP 5. FILTERING, REORDERING AND RENAMING  ############
@@ -381,7 +357,7 @@ rm 5.ragtag_patch/*.fasta
 echo "################## fusemblr: Step 5: Filtering, ordering and renaming"
 
 ##filter out any sequences smaller than 10kb, sort by length and then rename as numbered contig in order of largest to smallest (1 being the largest)
-seqkit seq -m 10000 ${prefix}.flye.hifiasm_patch.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.fa
+seqkit seq -m 10000 ${prefix}.prefilter.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.fa
 
 #####################################################################
 ############################# FINISHED  #############################
