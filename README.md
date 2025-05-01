@@ -12,17 +12,22 @@
 <i>fusemblr</i> is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
 
 <i>fusemblr</i> was designed for the <i>Fusarium oxysporum</i> assembly project (hence the name) <br/>
-The pipeline uses Nanopore (the longer and higher coverage the better) and paired-end illumina reads (PacBio is optional but recommended) <br/>
+The pipeline uses Nanopore (the longer and higher coverage the better) and paired-end illumina reads (PacBio is optional) <br/>
 
-Pipeline in 5 steps: <br/>
+Pipeline in 6 steps: <br/>
 1. Downsampling of reads to a designated coverage using <i>Filtlong</i> (Default: 100X; appears to help using this coverage)
 2. Polishing of downsampled reads with the paired-end illumina reads using <i>Ratatosk</i>
-3. Assembly with <i>Flye</i> <br/>
+3a. Assembly with <i>Flye</i> <br/>
    &nbsp; &nbsp; <i>removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) <br/>
    &nbsp; &nbsp; by default the minimum overlap value is automatically provided as the read N95 after polishing</i>
-4. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using <i>NextPolish2</i>
-5. Filtering (minimum length 10kb), reordering and renaming using <i>Seqkit</i> and <i>awk</i>
+3b. Assembly with <i>Hifiasm</i> <br/>
+   &nbsp; &nbsp; Use the option --ont with the same polished and downsampled reads as Flye
+   &nbsp; &nbsp; If PacBio Hifi reads are provided: use the --ul option, providing both ONT and Hifi reads for assembly
+4. 'Patch' the Flye assembly (target) using the the Hifiasm assembly (query) with <i>Ragtag patch</i> 
+5. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using <i>NextPolish2</i>
+6. Filtering (minimum length 10kb), reordering and renaming using <i>Seqkit</i> and <i>awk</i>
 
+Notably: Providing PacBio Hifi had very little impact on the resulting assemblies using our _Fusarium oxysporum_ datasets as we used recent ONT basecalled data, had high coverage and a good subset of long reads.
 
 ## Easy installation
 
