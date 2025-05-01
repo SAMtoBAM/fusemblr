@@ -2,41 +2,45 @@
     <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/logo/fusemblr.png" width=100%>
 </p>
 
-
 [![Zenodo DOI](https://zenodo.org/badge/963417762.svg)](https://doi.org/10.5281/zenodo.15190276)
 [![Anaconda_version](https://anaconda.org/samtobam/fusemblr/badges/version.svg)](https://anaconda.org/samtobam/fusemblr)
 [![Anaconda_platforms](https://anaconda.org/samtobam/fusemblr/badges/platforms.svg)](https://anaconda.org/samtobam/fusemblr)
 [![Anaconda_downloads](https://anaconda.org/samtobam/fusemblr/badges/downloads.svg)](https://anaconda.org/samtobam/fusemblr)
 [![Anaconda-Server Badge](https://anaconda.org/samtobam/fusemblr/badges/latest_release_date.svg)](https://anaconda.org/samtobam/fusemblr)
 
-<i>fusemblr</i> is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
+**_fusemblr_** is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
 
-<i>fusemblr</i> was designed for the <i>Fusarium oxysporum</i> assembly project (hence the name) <br/>
+**_fusemblr_**  was designed for the <i>Fusarium oxysporum</i> assembly project (hence the name) <br/>
 The pipeline uses Nanopore (the longer and higher coverage the better) and paired-end illumina reads (PacBio is optional) <br/>
 
-Pipeline in 6 steps: <br/>
- 1. Downsampling of reads to a designated coverage using ```Filtlong``` (Default: 100X; appears to help using this coverage) <br/>
- 2. Polishing of downsampled reads with the paired-end illumina reads using ```Meryl``` and ```Ratatosk correct``` <br/>
- 3. Genome Assembly <br/>
-3.a. Assembly with```Flye``` <br/>
-   &nbsp; &nbsp; -removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) <br/>
-   &nbsp; &nbsp; -by default the minimum overlap value is automatically provided as the read N95 after polishing <br/>
-3.b. Assembly with ```Hifiasm``` <br/>
-   &nbsp; &nbsp; -Use the option ```--ont``` with the same polished and downsampled reads as Flye <br/>
-   &nbsp; &nbsp; -If PacBio Hifi reads are provided: use the ```--ul``` option, providing both ONT and Hifi reads for assembly <br/>
-4. 'Patch' the Flye assembly (target) using the the Hifiasm assembly (query) with ```Ragtag patch``` <br/>
-5. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using ```NextPolish2``` <br/>
-6. Filtering (minimum length 10kb), reordering and renaming using ```Seqkit``` and ```awk``` <br/>
+<i>Notably: Providing PacBio Hifi had very little impact on the resulting assemblies using our _Fusarium oxysporum_ datasets as we used recent ONT basecalled data, had high coverage and a good subset of long reads.</i>
 
-Notably: Providing PacBio Hifi had very little impact on the resulting assemblies using our _Fusarium oxysporum_ datasets as we used recent ONT basecalled data, had high coverage and a good subset of long reads.
+# Pipeline in 6 steps: <br/>
+#### 1. Downsampling of reads to a designated coverage using ```Filtlong```
+###### &nbsp; &nbsp; -default is set to 100X (-x); which provided better assemblies compared to the typical 30-50X 
+#### 2. Polishing of downsampled reads with the paired-end illumina reads using ```Meryl``` and ```Ratatosk correct``` 
+###### &nbsp; &nbsp; -uses a baseline quality score (-Q) of 90 and therefore assumes mildly recent ONT data (e.g. R10 or high-accuracy basecalling)
+#### 3. Genome Assembly
+##### 3.a. Assembly with```Flye``` 
+###### &nbsp; &nbsp; -removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) 
+###### &nbsp; &nbsp; -by default the minimum overlap value is automatically provided as the read N95 after polishing
+##### 3.b. Assembly with ```Hifiasm```
+###### &nbsp; &nbsp; -if Hifi reads are provided: uses the ```--ul``` option, with both polished ONT and Hifi reads
+###### &nbsp; &nbsp; -without Hifi: uses the ```--ont``` option, with only the polished ONT reads
+#### 4. 'Patch' the Flye assembly (target) using the the Hifiasm assembly (query) with ```Ragtag patch```
+###### &nbsp; &nbsp; -uses a minimum unique alignment length (-f) of 25000 to be conservative during patching
+#### 5. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using ```NextPolish2```
+#### 6. Filtering (minimum length 10kb), reordering and renaming using ```Seqkit``` and ```awk```
 
-## Easy installation
+
+
+# Easy installation
 
 	conda install samtobam::fusemblr
 
 
 
-## How to run
+# How to run
 
  
 	fusemblr.sh -n nanopore.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz -g 70000000
@@ -62,7 +66,7 @@ Notably: Providing PacBio Hifi had very little impact on the resulting assemblie
 	-h | --help		Print this help message
 
 
-
+## fusemblr Schematic
 
 <p align="center" >
     <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/figures/fusemblr_schematic.png" width=70%>
