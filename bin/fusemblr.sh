@@ -278,7 +278,7 @@ cp 3a.flye_assembly/assembly.fasta 3a.flye_assembly/${assembly}.fa
 echo "################## fusemblr: Step 3b: Assembling ONT reads with Hifiasm"
 
 ##create directory for the hifiasm output
-mkdir 3b.hifiasm/${prefix}
+mkdir 3b.hifiasm/
 
 if [[  $hifi != "" ]]
 then
