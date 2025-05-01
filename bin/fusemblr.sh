@@ -277,8 +277,6 @@ cp 3a.flye_assembly/assembly.fasta 3a.flye_assembly/${assembly}.fa
 
 echo "################## fusemblr: Step 3b: Assembling ONT reads with Hifiasm"
 
-mkdir 3b.hifiasm/${prefix}
-
 if [[  $hifi != "" ]]
 then
 ## if hifi data is present; run hifiasm with hifi data and providing ONT reads as an ultralong dataset
