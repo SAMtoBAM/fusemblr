@@ -27,14 +27,14 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="2.0000001"
-     inkscape:cx="123.25"
-     inkscape:cy="98.749997"
+     inkscape:cx="145.75"
+     inkscape:cy="170.75"
      inkscape:window-width="1850"
      inkscape:window-height="1016"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer3"
      inkscape:pageshadow="2"
      showgrid="false" /><defs
      id="defs1"><g
@@ -580,7 +580,7 @@
        transform="matrix(0.55248079,0,0,0.55248079,94.944838,81.5559)"
        style="fill:#666666;fill-opacity:1" /><path
        style="fill:#95ccfb;fill-opacity:0;stroke:#a0a0a0;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 60.734425,19.571775 -10.114095,0.001"
+       d="m 60.734203,19.571774 -6.702937,10e-4"
        id="path11-0-6-4-2"
        sodipodi:nodetypes="cc" /><path
        style="fill:#95ccfb;fill-opacity:0;stroke:#a0a0a0;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
@@ -781,7 +781,8 @@
          style="font-style:italic;font-variant:normal;font-weight:bold;font-stretch:condensed;font-size:1.76389px;font-family:Arial;-inkscape-font-specification:'Arial Italic Condensed';text-align:center;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.5"
          x="42.983318"
          y="20.083883"
-         id="tspan3-1-8-8-2-1">Ratatosk (; -Q 90)</tspan></text><text
+         id="tspan3-1-8-8-2-1"
+         dy="0 0 0 0 0 0 0 0">Meryl; Ratatosk (; -Q 90)</tspan></text><text
        xml:space="preserve"
        style="font-weight:bold;font-stretch:condensed;font-size:1.76389px;line-height:normal;font-family:Arial;-inkscape-font-specification:'Arial Bold Condensed';text-align:start;text-decoration-color:#000000;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.499999"
        x="54.933025"
