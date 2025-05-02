@@ -290,7 +290,8 @@ hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont 2.ratatosk_ont/${prefix}
 fi
 ## convert gfa to fasta
 awk '/^S/{print ">"$2;print $3}' 3b.hifiasm/${prefix}.bp.p_ctg.gfa > 3b.hifiasm/${prefix}.hifiasm.fa
-
+##clean up
+rm 3b.hifiasm/${prefix}.*.bin
 
 #####################################################################
 ################### STEP 4. ASSEMBLY GAP FILLING  ###################
