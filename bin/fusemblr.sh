@@ -8,9 +8,11 @@ version="v1"
 ##this pipeline has 5 main steps:
 ## STEP 1: Downsampling on raw ONT reads (Filtlong)
 ## STEP 2: Polishing of raw ONT reads with paired end illumina data (Ratatosk)
-## STEP 3: Assembly of polished ONT reads (Flye; modified to allow for larger minimum overlap values)
-## Step 4: Polishing of assembly using Pacbio (NextPolish2; optional)
-## Step 5: Filtering, reordering and renaming (Seqkit)
+## STEP 3a: Assembly of polished ONT reads (Flye; modified to allow for larger minimum overlap values)
+## STEP 3b: Assembly of polshind ONT reads (Hifiasm; using Hifi reads if provided)
+## STEP 4: Patching of Flye assembly using Hifiasm output
+## STEP 5: Polishing of assembly using Pacbio (NextPolish2; optional)
+## STEP 6: Filtering, reordering and renaming (Seqkit)
 
 #####################################################################################
 ############# STEP -1. CREATING THE ENVIRONMENT. NOT ACTUALLY USED NOW ##############
@@ -22,12 +24,15 @@ version="v1"
 ## filtlong (kmer based long-read downsampling/filtering tool)
 ## seqkit (many uses)
 ## flye (assembler)
+## hifiasm (assembler)
 ## nextpolish2 (long-read polisher for use with pacbio hifi is available)
 ## fastp (quality control of illumina data used for nextpolish2)
 ## minimap2 (read alignment for nextpolish2)
 ## samtools (read alignment for nextpolish2)
+## ragtag (patching)
+## paqman (assembly evaluation)
 
-# mamba create -n fusemblr ratatosk bioconda::filtlong bioconda::flye bioconda::fastp nextpolish2 bioconda::seqkit bioconda::minimap2 bioconda::samtools
+# mamba create -n fusemblr ratatosk bioconda::filtlong bioconda::flye bioconda::fastp nextpolish2 bioconda::seqkit bioconda::minimap2 bioconda::samtools bioconda::ragtag bioconda::hifiasm samtobam::paqman
 #conda activate fusemblr
 
 ##modify the maximum value for minoverlap in flye (making 200kb..the N95 of a read dataset shouldn't exceed that)
@@ -50,6 +55,8 @@ coverage="100"
 weight="5"
 minovl=""
 prefix=""
+buscodb="eukaryota"
+telomererepeat="TTAGGG"
 output="fusemblr_output"
 help="nohelp"
 
@@ -116,6 +123,16 @@ case "$key" in
 	shift
 	shift
 	;;
+	-b|--buscodb)
+	buscodb="$2"
+	shift
+	shift
+	;;
+	-r|--telomererepeat)
+	telomererepeat="$2"
+	shift
+	shift
+	;;
 	-o|--output)
 	output="$2"
 	shift
@@ -131,27 +148,31 @@ case "$key" in
 	
 	fusemblr (version: ${version})
  
-	fusemblr.sh -n nanopore.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz -g 70000000
+	fusemblr.sh -n nanopore.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz -g 70000000
 	
 	Required inputs:
-	-n | --nanopore		Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
-	-1 | --pair1		Paired end illumina reads in fastq format; first pair. Used for Rataosk polishing. Can be gzipped (*.gz)
-	-2 | --pair2		Paired end illumina reads in fastq format; second pair. Used for Rataosk polishing. Can be gzipped (*.gz)	
-	-g | --genomesize	Estimation of genome size, required for downsampling and assembly
+	-n | --nanopore			Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
+	-1 | --pair1			Paired end illumina reads in fastq format; first pair. Used for Rataosk polishing. Can be gzipped (*.gz)
+	-2 | --pair2			Paired end illumina reads in fastq format; second pair. Used for Rataosk polishing. Can be gzipped (*.gz)	
+	-g | --genomesize		Estimation of genome size, required for downsampling and assembly
 
 	Recommended inputs:
-	-h | --hifi		Pacbio HiFi reads required for assembly polishing with NextPolish2 (Recommended if available)
-	-t | --threads		Number of threads for tools that accept this option (default: 1)
+	-h | --hifi			Pacbio HiFi reads required for assembly polishing with NextPolish2 (Recommended if available)
+	-t | --threads			Number of threads for tools that accept this option (default: 1)
+
+	PAQman specific paramters:
+	-b | --buscodb			BUSCO database used for assembly validation (Default: Eukaryota)
+	-r | --telomererepeat	Single telomeric repeat used to caluclate telomerality (Default: TTAGGG)
 	
 	Optional parameters:
-	-m | --minsize		Minimum size of reads to keep during downsampling (Default: 5000)
-	-x | --coverage		The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
-	-v | --minovl		Minimum overlap for Flye assembly (Default: Calculated during run as N95 of reads used for assembly)
- 	-w | --weight		The weighting used by Filtlong for selecting reads; balancing the length vs the quality (Default: 5)
-	-p | --prefix		Prefix for output (Default: name of nanopore reads file (-a) before the fastq suffix)
-	-o | --output		Name of output folder for all results (Default: fusemblr_output)
-	-c | --cleanup		Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
-	-h | --help		Print this help message
+	-m | --minsize			Minimum size of reads to keep during downsampling (Default: 5000)
+	-x | --coverage			The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
+	-v | --minovl			Minimum overlap for Flye assembly (Default: Calculated during run as N95 of reads used for assembly)
+ 	-w | --weight			The weighting used by Filtlong for selecting reads; balancing the length vs the quality (Default: 5)
+	-p | --prefix			Prefix for output (Default: name of nanopore reads file (-a) before the fastq suffix)
+	-o | --output			Name of output folder for all results (Default: fusemblr_output)
+	-c | --cleanup			Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
+	-h | --help			Print this help message
 
 	"
 	exit
@@ -283,10 +304,10 @@ mkdir 3b.hifiasm/
 if [[  $hifi != "" ]]
 then
 ## if hifi data is present; run hifiasm with hifi data and providing ONT reads as an ultralong dataset
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ul 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz ${hifipath}
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} --ul 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz ${hifipath}
 else
 ## if hifi data is not present; run hifiasm with hifi data only providing ONT reads
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} --ont 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
 fi
 ## convert gfa to fasta
 awk '/^S/{print ">"$2;print $3}' 3b.hifiasm/${prefix}.bp.p_ctg.gfa > 3b.hifiasm/${prefix}.hifiasm.fa
@@ -299,9 +320,17 @@ rm 3b.hifiasm/${prefix}.*.bin
 
 echo "################## fusemblr: Step 4: Filling gaps in Flye assembly using Hifiasm"
 
-ragtag.py patch -o 4.ragtag_patch -f 25000 3a.flye_assembly/${assembly}.fa 3b.hifiasm/${prefix}.hifiasm.fa
-mv 4.ragtag_patch/ragtag.patch.fasta 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa
-rm 4.ragtag_patch/*.fasta
+mkdir 4.ragtag_patch/
+mkdir 4.ragtag_patch/flye.rt_patch/
+ragtag.py patch -o 4.ragtag_patch/flye.rt_patch/ -f 25000 3a.flye_assembly/${assembly}.fa 3b.hifiasm/${prefix}.hifiasm.fa
+mv 4.ragtag_patch/flye.rt_patch/ragtag.patch.fasta 4.ragtag_patch/${prefix}.flye.rt_patch.fa
+rm 4.ragtag_patch/flye.rt_patch/*.fasta
+
+
+mkdir 4.ragtag_patch/hifiasm.rt_patch/
+ragtag.py patch -o 4.ragtag_patch/hifiasm.rt_patch/ -f 25000 3b.hifiasm/${prefix}.hifiasm.fa 3a.flye_assembly/${assembly}.fa 
+mv 4.ragtag_patch/hifiasm.rt_patch/ragtag.patch.fasta 4.ragtag_patch/${prefix}.hifiasm.rt_patch.fa
+rm 4.ragtag_patch/hifiasm.rt_patch/*.fasta
 
 
 
@@ -317,35 +346,43 @@ echo "################## fusemblr: Step 5: Polishing assembly with Hifi"
 
 mkdir 5.nextpolish2
 
-## prepare long-read alignments to assembly
-minimap2 -ax map-hifi -t ${threads} 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa ${hifipath} | samtools sort -@ 4 -o 5.nextpolish2/minimap_pacbio.sort.bam -
-samtools index 5.nextpolish2/minimap_pacbio.sort.bam
-
 ## prepare illumina data
 fastp -5 -3 -n 0 -f 5 -F 5 -t 5 -T 5 -q 20 -i ${pair1path} -I ${pair2path} -o ${prefix}.R1.clean.fq.gz -O ${prefix}.R2.clean.fq.gz
 ## produce a 21 and 31-mer dataset (needs a lot of memory)
 yak count -o k21.yak -k 21 -b 37 <(zcat ${prefix}.R*.clean.fq.gz) <(zcat ${prefix}.R*.clean.fq.gz)
 yak count -o k31.yak -k 31 -b 37 <(zcat ${prefix}.R*.clean.fq.gz) <(zcat ${prefix}.R*.clean.fq.gz)
 
+
+##polish the flye patched assembly
+## prepare long-read alignments to assembly
+mkdir 5.nextpolish2/flye.rt_patch/
+minimap2 -ax map-hifi -t ${threads} 4.ragtag_patch/${prefix}.flye.rt_patch.fa ${hifipath} | samtools sort -@ 4 -o 5.nextpolish2/flye.rt_patch/minimap_pacbio.sort.bam -
+samtools index 5.nextpolish2/flye.rt_patch/minimap_pacbio.sort.bam
+
 ## now run Nextpolish with the inputs generated above
-nextPolish2 -t ${threads} 5.nextpolish2/minimap_pacbio.sort.bam 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa k21.yak k31.yak > 5.nextpolish2/${prefix}.nextpolish2.fa
+nextPolish2 -t ${threads} 5.nextpolish2/flye.rt_patch/minimap_pacbio.sort.bam 4.ragtag_patch/${prefix}.flye.rt_patch.fa k21.yak k31.yak > 5.nextpolish2/${prefix}.flye.rt_patch.nextpolish2.fa
 
 ## remove intermediate (alignment/yak) files that take up a lot of space
-rm 5.nextpolish2/minimap_pacbio.sort.*
+rm 5.nextpolish2/flye.rt_patch/minimap_pacbio.sort.*
 
-##convert the assembly to a simple name
-cp 5.nextpolish2/${prefix}.nextpolish2.fa ${prefix}.prefilter.fa
+##polish the hifiasm patched assembly
+## prepare long-read alignments to assembly
+mkdir 5.nextpolish2/hifiasm.rt_patch/
+minimap2 -ax map-hifi -t ${threads} 4.ragtag_patch/${prefix}.hifiasm.rt_patch.fa ${hifipath} | samtools sort -@ 4 -o 5.nextpolish2/hifiasm.rt_patch/minimap_pacbio.sort.bam -
+samtools index 5.nextpolish2/hifiasm.rt_patch/minimap_pacbio.sort.bam
+
+## now run Nextpolish with the inputs generated above
+nextPolish2 -t ${threads} 5.nextpolish2/hifiasm.rt_patch/minimap_pacbio.sort.bam 4.ragtag_patch/${prefix}.hifiasm.rt_patch.fa k21.yak k31.yak > 5.nextpolish2/${prefix}.hifiasm.rt_patch.nextpolish2.fa
+
+## remove intermediate (alignment/yak) files that take up a lot of space
+rm 5.nextpolish2/hifiasm.rt_patch/minimap_pacbio.sort.*
+
 
 ##cleaup 
 rm *.yak
 rm ${prefix}.R*.clean.fq.gz
 rm fastp.html
 rm fastp.json
-
-else
-
-##convert the assembly to a simple name
-cp 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa ${prefix}.prefilter.fa
 
 fi
 
@@ -361,7 +398,51 @@ fi
 echo "################## fusemblr: Step 5: Filtering, ordering and renaming"
 
 ##filter out any sequences smaller than 10kb, sort by length and then rename as numbered contig in order of largest to smallest (1 being the largest)
-seqkit seq -m 10000 ${prefix}.prefilter.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.fa
+if [[  $hifi != "" ]]
+then
+seqkit seq -m 10000 5.nextpolish2/${prefix}.flye.rt_patch.nextpolish2.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.flye.final.fa
+seqkit seq -m 10000 5.nextpolish2/${prefix}.hifiasm.rt_patch.nextpolish2.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.hifiasm.final.fa
+else
+seqkit seq -m 10000 4.ragtag_patch/${prefix}.flye.rt_patch.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.flye.final.fa
+seqkit seq -m 10000 4.ragtag_patch/${prefix}.hfiiasm.rt_patch.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.hifiasm.final.fa
+fi
+
+#cd-hit-est -i ${prefix}.prefilter.fa -o ${prefix}.prefilter.cdhitest.fa -aS 0.9 -c 0.9 -G 0 -g 1 -M 0
+#seqkit seq -m 10000 ${prefix}.prefilter.cdhitest.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.fa
+#rm ${prefix}.prefilter.cdhitest.fa
+
+#####################################################################
+########## STEP 6. EVALUATING ALL ASSEMBLIES WITH PAQMAN  ###########
+#####################################################################
+
+
+echo "################## fusemblr: Step 6: Evaluating all assemblies using PAQman"
+
+mkdir 6.paqman_evaluations
+
+if [[  $hifi != "" ]]
+then
+paqman.sh -a 5.nextpolish2/${prefix}.flye.rt_patch.nextpolish2.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye.rt_patch.nextpolish2
+paqman.sh -a 5.nextpolish2/${prefix}.hifiasm.rt_patch.nextpolish2.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm.rt_patch.nextpolish2
+fi
+
+paqman.sh -a 4.ragtag_patch/${prefix}.flye.rt_patch.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.flye.rt_patch.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye.rt_patch
+paqman.sh -a 4.ragtag_patch/${prefix}.hifiasm.rt_patch.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm.rt_patch
+
+paqman.sh -a 3b.hifiasm/${prefix}.hifiasm.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm
+paqman.sh -a 3a.flye_assembly/${assembly}.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.flye.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye
+
+
+##now grab all the summary files and group them and run paqplots
+head -n1 6.paqman_evaluations/${prefix}.flye.paqman/summary_stats.tsv > 6.paqman_evaluations/combined.summary_stats.tsv
+ls 6.paqman_evaluations/*.paqman/summary_stats.tsv | while read file
+do
+tail -n1 $file
+done >> 6.paqman_evaluations/combined.summary_stats.tsv
+
+##now run paqplots to get some figures generated from the comparisons
+paqplots.sh -s 6.paqman_evaluations/combined.summary_stats.tsv -o 6.paqman_evaluations/combined.summary_stats.paqplot -p ${prefix}
+
 
 #####################################################################
 ############################# FINISHED  #############################
