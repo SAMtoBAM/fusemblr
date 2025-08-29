@@ -135,8 +135,8 @@ case "$key" in
 	
 	Required inputs:
 	-n | --nanopore		Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
-	-1 | --pair1		Paired end illumina reads in fastq format; first pair. Used for Rataosk polishing. Can be gzipped (*.gz)
-	-2 | --pair2		Paired end illumina reads in fastq format; second pair. Used for Rataosk polishing. Can be gzipped (*.gz)	
+	-1 | --pair1		Paired end illumina reads in fastq format; first pair. Used for Ratatosk polishing. Can be gzipped (*.gz)
+	-2 | --pair2		Paired end illumina reads in fastq format; second pair. Used for Ratatosk polishing. Can be gzipped (*.gz)	
 	-g | --genomesize	Estimation of genome size, required for downsampling and assembly
 
 	Recommended inputs:
@@ -229,7 +229,7 @@ filtlong --min_length ${minsize} -t ${target} --length_weight ${weight} ${nanopo
 
 
 ###########################################################################
-###################### 2. READ POLISHING WITH RATAOSK #####################
+###################### 2. READ POLISHING WITH RATATOSK #####################
 ###########################################################################
 
 echo "################## fusemblr: Step 2: Polishing ONT reads"
