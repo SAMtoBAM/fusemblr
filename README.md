@@ -11,7 +11,8 @@
 **_fusemblr_** is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
 
 **_fusemblr_**  was designed for the <i>Fusarium oxysporum</i> assembly project (hence the name) <br/>
-The pipeline uses Nanopore (the longer and higher coverage the better); paired-end illumina reads and PacBio is optional <br/>
+The pipeline only requires Nanopore reads (the longer and higher coverage the better) and an estimation of genome size <br/>
+Paired-end illumina reads and PacBio is optional <br/>
 
 <i>Notably: Providing both illumina PacBio Hifi had very little impact on the resulting assemblies using our _Fusarium oxysporum_ datasets as we used recent ONT basecalled data, had high coverage and a good subset of long reads.</i>
 
@@ -74,6 +75,7 @@ The pipeline uses Nanopore (the longer and higher coverage the better); paired-e
 
 
 Following assembly it is recommended that you run [PAQman](https://github.com/SAMtoBAM/PAQman) on your resulting assembly to comprehensively check the quality <br/>
+It is recommended to feed your resulting assembly to PAQman alongside the 1.filtlong/*.fz.gz set of reads <br/>
 This can also help you compare any assemblies you have to check for the best.
 
 
