@@ -218,13 +218,13 @@ cd ${output}
 ###################### STEP 1. DOWNSAMPLING ######################
 ##################################################################
 
-echo "#################################################################"
-echo "################## fusemblr: Starting fusemblr ##################"
-echo "#################################################################"
+echo "#######################################################"
+echo "################## Starting fusemblr ##################"
+echo "#######################################################"
 
-echo "################## fusemblr: Outputting data to ${output}"
+echo "################## Outputting data to ${output}"
 
-echo "################## fusemblr: Step 1: Downsampling ONT reads"
+echo "################## Step 1: Downsampling ONT reads"
 
 
 ##make a directory for placing the downsampled output
@@ -240,7 +240,7 @@ filtlong --min_length ${minsize} -t ${target} --length_weight ${weight} ${nanopo
 
 if [[  $pair1 != "" ]]
 then
-echo "################## fusemblr: Step 2: Polishing ONT reads"
+echo "################## Step 2: Polishing ONT reads"
 
 ##run polishing if illumina data is present
 
@@ -269,7 +269,7 @@ fi
 
 else
 
-echo "################## fusemblr: Skipping Step 2: Polishing ONT reads"
+echo "################## Skipping Step 2: Polishing ONT reads"
 ##if illunina data isn't present use the downsampled unpolished reads
 ##get some stats
 seqkit stats -N 50,90,95 --threads ${threads} 1.filtlong_ont/${prefix}.${readstats}.fq.gz > 1.filtlong_ont/${prefix}.${readstats}.stats.tsv
@@ -290,7 +290,7 @@ fi
 ################## STEP 3a. ASSEMBLY WITH FLYE ##################
 #################################################################
 
-echo "################## fusemblr: Step 3a: Assembling ONT reads with Flye"
+echo "################## Step 3a: Assembling ONT reads with Flye"
 
 if [[  $pair1 != "" ]]
 then
@@ -317,15 +317,15 @@ fi
 ##print out a message to show the two sizes
 actualsize=$( awk '!/^>/ {len += length($0)} END {print len}' 3a.flye_assembly/${assembly}.fa )
 
-echo "Predicted genome size provided by -g: ${genomesize}"
-echo "Flye-asembled genome size: ${actualsize}"
-echo "If these two differ significantly; try re-running fusemblr using the assembled size as the -g paramater (may improve assembly)"
+echo "################## Predicted genome size provided by -g: ${genomesize}"
+echo "################## Flye-asembled genome size: ${actualsize}"
+echo "################## If these two differ significantly; try re-running fusemblr using the assembled size as the -g paramater (may improve assembly)"
 
 #################################################################
 ################ STEP 3b. ASSEMBLY WITH HIFIASM #################
 #################################################################
 
-echo "################## fusemblr: Step 3b: Assembling ONT reads with Hifiasm"
+echo "################## Step 3b: Assembling ONT reads with Hifiasm"
 
 ##create directory for the hifiasm output
 mkdir 3b.hifiasm/
@@ -359,7 +359,7 @@ rm 3b.hifiasm/${prefix}.*.bin
 ################### STEP 4. ASSEMBLY GAP FILLING  ###################
 #####################################################################
 
-echo "################## fusemblr: Step 4: Filling gaps in Flye assembly using Hifiasm"
+echo "################## Step 4: Filling gaps in Flye assembly using Hifiasm"
 
 ragtag.py patch -o 4.ragtag_patch -f 25000 3a.flye_assembly/${assembly}.fa 3b.hifiasm/${prefix}.hifiasm.fa
 mv 4.ragtag_patch/ragtag.patch.fasta 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa
@@ -375,7 +375,7 @@ rm 4.ragtag_patch/*.fasta
 if [[  $hifi != "" ]]
 then
 
-echo "################## fusemblr: Step 5: Polishing assembly with Hifi"
+echo "################## Step 5: Polishing assembly with Hifi"
 
 mkdir 5.nextpolish2
 
@@ -405,7 +405,7 @@ rm fastp.html
 rm fastp.json
 
 else
-echo "################## fusemblr: Skipping Step 5: Polishing assembly with Hifi"
+echo "################## Skipping Step 5: Polishing assembly with Hifi"
 
 ##convert the assembly to a simple name
 cp 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa ${prefix}.prefilter.fa
@@ -421,7 +421,7 @@ fi
 #####################################################################
 
 
-echo "################## fusemblr: Step 6: Filtering, ordering and renaming"
+echo "################## Step 6: Filtering, ordering and renaming"
 
 ##filter out any sequences smaller than 10kb, sort by length and then rename as numbered contig in order of largest to smallest (1 being the largest)
 seqkit seq -m 10000 ${prefix}.prefilter.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.fa
@@ -430,4 +430,4 @@ seqkit seq -m 10000 ${prefix}.prefilter.fa | seqkit sort -l -r - | awk 'BEGIN{n=
 ############################# FINISHED  #############################
 #####################################################################
 
-echo "################## fusemblr: Thanks for using fusemblr"
+echo "################## Thanks for using fusemblr"
