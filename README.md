@@ -14,7 +14,7 @@
 The pipeline only requires Nanopore reads (the longer and higher coverage the better) and an estimation of genome size <br/>
 Paired-end illumina reads and PacBio is optional <br/>
 
-<i>Notably: Providing both illumina PacBio Hifi had very little impact on the resulting assemblies using our _Fusarium oxysporum_ datasets as we used recent ONT basecalled data, had high coverage and a good subset of long reads.</i>
+<i>Notably: Providing illumina and/or PacBio Hifi had very little impact on the resulting assemblies using our _Fusarium oxysporum_ datasets as we used recent ONT basecalled data, had high coverage and a good subset of long reads.</i>
 
 # Easy installation
 
