@@ -50,21 +50,21 @@ Paired-end illumina reads and PacBio is optional <br/>
 
 
 # Pipeline in 6 steps: <br/>
-#### 1. Downsampling of reads to a designated coverage using ```Filtlong```
-###### &nbsp; &nbsp; -default is set to 100X (-x); which provided better assemblies compared to the typical 30-50X 
-#### 2. Optional: Polishing of downsampled reads with the paired-end illumina reads using ```Ratatosk correct``` 
-###### &nbsp; &nbsp; -uses a baseline quality score (-Q) of 90 and therefore assumes mildly recent ONT data (e.g. R10 or high-accuracy basecalling)
-#### 3. Genome Assembly
-##### 3.a. Assembly with```Flye``` 
-###### &nbsp; &nbsp; -removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) 
-###### &nbsp; &nbsp; -by default the minimum overlap value is automatically provided as the read N90 after polishing
-##### 3.b. Assembly with ```Hifiasm```
-###### &nbsp; &nbsp; -if Hifi reads are provided: uses the ```--ul``` option, with both polished ONT and Hifi reads
-###### &nbsp; &nbsp; -without Hifi: uses the ```--ont``` option, with only the polished ONT reads
-#### 4. 'Patch' the Flye assembly (target) using the the Hifiasm assembly (query) with ```Ragtag patch```
-###### &nbsp; &nbsp; -uses a minimum unique alignment length (-f) of 25000 to be conservative during patching
-#### 5. Optional: Polishing of assembly with PacBio Hifi and paired-end illumina reads using ```NextPolish2```
-#### 6. Filtering (minimum length 10kb), reordering and renaming using ```Seqkit``` and ```awk```
+### 1. Downsampling of reads to a designated coverage using ```Filtlong```
+##### &nbsp; &nbsp; -default is set to 100X (-x); which provided better assemblies compared to the typical 30-50X 
+### 2. _Optional_: Polishing of downsampled reads with the paired-end illumina reads using ```Ratatosk correct``` 
+##### &nbsp; &nbsp; -uses a baseline quality score (-Q) of 90 and therefore assumes mildly recent ONT data (e.g. R10 or high-accuracy basecalling)
+### 3. Genome Assembly
+#### 3.a. Assembly with```Flye``` 
+##### &nbsp; &nbsp; -removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) 
+##### &nbsp; &nbsp; -by default the minimum overlap value is automatically provided as the read N90 after polishing
+#### 3.b. Assembly with ```Hifiasm```
+##### &nbsp; &nbsp; -if Hifi reads are provided: uses the ```--ul``` option, with both polished ONT and Hifi reads
+##### &nbsp; &nbsp; -without Hifi: uses the ```--ont``` option, with only the polished ONT reads
+### 4. 'Patch' the Flye assembly (target) using the the Hifiasm assembly (query) with ```Ragtag patch```
+##### &nbsp; &nbsp; -uses a minimum unique alignment length (-f) of 25000 to be conservative during patching
+### 5. _Optional_: Polishing of assembly with PacBio Hifi and paired-end illumina reads using ```NextPolish2```
+### 6. Filtering (minimum contig length 10kb), reordering and renaming using ```Seqkit``` and ```awk```
 
 ## Schematic
 
