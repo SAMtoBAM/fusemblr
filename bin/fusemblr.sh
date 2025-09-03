@@ -8,9 +8,10 @@ version="v1"
 ##this pipeline has 5 main steps:
 ## STEP 1: Downsampling on raw ONT reads (Filtlong)
 ## STEP 2: Polishing of raw ONT reads with paired end illumina data (Ratatosk; optional)
-## STEP 3: Assembly of polished ONT reads (Flye; modified to allow for larger minimum overlap values)
-## Step 4: Polishing of assembly using Pacbio (NextPolish2; optional)
-## Step 5: Filtering, reordering and renaming (Seqkit)
+## STEP 3: Assembly of polished ONT reads (Flye (modified to allow for larger minimum overlap values) and Hifiasm)
+## Step 4: Patching Flye assembly with hifiasm assembly
+## Step 5: Polishing of assembly using Pacbio (NextPolish2; optional)
+## Step 6: Filtering, reordering and renaming (Seqkit)
 
 #####################################################################################
 ############# STEP -1. CREATING THE ENVIRONMENT. NOT ACTUALLY USED NOW ##############
@@ -22,12 +23,13 @@ version="v1"
 ## filtlong (kmer based long-read downsampling/filtering tool)
 ## seqkit (many uses)
 ## flye (assembler)
+## hifiasm (assembler)
 ## nextpolish2 (long-read polisher for use with pacbio hifi is available)
 ## fastp (quality control of illumina data used for nextpolish2)
 ## minimap2 (read alignment for nextpolish2)
 ## samtools (read alignment for nextpolish2)
 
-# mamba create -n fusemblr ratatosk bioconda::filtlong bioconda::flye bioconda::fastp nextpolish2 bioconda::seqkit bioconda::minimap2 bioconda::samtools
+# mamba create -n fusemblr ratatosk bioconda::filtlong bioconda::flye bioconda::hifiasm bioconda::fastp nextpolish2 bioconda::seqkit bioconda::minimap2 bioconda::samtools
 #conda activate fusemblr
 
 ##modify the maximum value for minoverlap in flye (making 200kb..the N95 of a read dataset shouldn't exceed that)
@@ -375,7 +377,7 @@ rm 4.ragtag_patch/*.fasta
 if [[  $hifi != "" ]]
 then
 
-echo "Step 5: Polishing assembly with Hifi"
+echo "Step 5: Polishing assembly with Hifi reads"
 
 mkdir 5.nextpolish2
 
@@ -405,7 +407,7 @@ rm fastp.html
 rm fastp.json
 
 else
-echo "Skipping Step 5: Polishing assembly with Hifi"
+echo "Skipping Step 5: Polishing assembly with Hifi reads"
 
 ##convert the assembly to a simple name
 cp 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa ${prefix}.prefilter.fa
