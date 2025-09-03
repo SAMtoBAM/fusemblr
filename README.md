@@ -56,7 +56,7 @@ The pipeline uses Nanopore (the longer and higher coverage the better) and paire
 #### 3. Genome Assembly
 ##### 3.a. Assembly with```Flye``` 
 ###### &nbsp; &nbsp; -removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) 
-###### &nbsp; &nbsp; -by default the minimum overlap value is automatically provided as the read N95 after polishing
+###### &nbsp; &nbsp; -by default the minimum overlap value is automatically provided as the read N90 after polishing
 ##### 3.b. Assembly with ```Hifiasm```
 ###### &nbsp; &nbsp; -if Hifi reads are provided: uses the ```--ul``` option, with both polished ONT and Hifi reads
 ###### &nbsp; &nbsp; -without Hifi: uses the ```--ont``` option, with only the polished ONT reads
