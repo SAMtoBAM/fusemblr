@@ -146,7 +146,7 @@ case "$key" in
 	Optional parameters:
 	-m | --minsize		Minimum size of reads to keep during downsampling (Default: 5000)
 	-x | --coverage		The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
-	-v | --minovl		Minimum overlap for Flye assembly (Default: Calculated during run as N95 of reads used for assembly)
+	-v | --minovl		Minimum overlap for Flye assembly (Default: Calculated during run as N90 of reads used for assembly)
  	-w | --weight		The weighting used by Filtlong for selecting reads; balancing the length vs the quality (Default: 5)
 	-p | --prefix		Prefix for output (Default: name of nanopore reads file (-a) before the fastq suffix)
 	-o | --output		Name of output folder for all results (Default: fusemblr_output)
@@ -260,7 +260,7 @@ seqkit stats -N 50,90,95 --threads ${threads} 2.ratatosk_ont/${prefix}.${readsta
 ###get the read N90 to set as a variables in flye
 if [[ $minovl == "" ]]
 then
-minovl=$( tail -n1 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv | awk '{print $11}' | sed 's/,//g' )
+minovl=$( tail -n1 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv | awk '{print $10}' | sed 's/,//g' )
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
 else
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
