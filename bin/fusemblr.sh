@@ -238,12 +238,12 @@ filtlong --min_length ${minsize} -t ${target} --length_weight ${weight} ${nanopo
 ###################### 2. READ POLISHING WITH RATAOSK #####################
 ###########################################################################
 
-
+if [[  $pair1 != "" ]]
+then
 echo "################## fusemblr: Step 2: Polishing ONT reads"
 
 ##run polishing if illumina data is present
-if [[  $pair1 != "" ]]
-then
+
 
 ## create directory for output of reads
 mkdir 2.ratatosk_ont
@@ -268,6 +268,8 @@ minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
 fi
 
 else
+
+echo "################## fusemblr: Skipping Step 2: Polishing ONT reads"
 ##if illunina data isn't present use the downsampled unpolished reads
 ##get some stats
 seqkit stats -N 50,90,95 --threads ${threads} 1.filtlong_ont/${prefix}.${readstats}.fq.gz > 1.filtlong_ont/${prefix}.${readstats}.stats.tsv
@@ -275,7 +277,7 @@ seqkit stats -N 50,90,95 --threads ${threads} 1.filtlong_ont/${prefix}.${readsta
 ###get the read N90 to set as a variables in flye
 if [[ $minovl == "" ]]
 then
-minovl=$( tail -n1 1.filtlong_ont/${prefix}.${readstats}.stats.tsv | awk '{print $11}' | sed 's/,//g' )
+minovl=$( tail -n1 1.filtlong_ont/${prefix}.${readstats}.stats.tsv | awk '{print $10}' | sed 's/,//g' )
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
 else
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
@@ -310,6 +312,14 @@ flye --nano-corr 1.filtlong_ont/${prefix}.${readstats}.fq.gz -m ${minovl} --geno
 cp 3a.flye_assembly/assembly.fasta 3a.flye_assembly/${assembly}.fa
 
 fi
+
+##run a check of the actual assembly size from flye and compare this to the input predicted assembly size
+##print out a message to show the two sizes
+actualsize=$( awk '!/^>/ {len += length($0)} END {print len}' 3a.flye_assembly/${assembly}.fa )
+
+echo "Predicted genome size provided by -g: ${genomesize}"
+echo "Flye-asembled genome size: ${actualsize}"
+echo "If these two differ significantly; try re-running fusemblr using the assembled size as the -g paramater (may improve assembly)"
 
 #################################################################
 ################ STEP 3b. ASSEMBLY WITH HIFIASM #################
@@ -395,6 +405,7 @@ rm fastp.html
 rm fastp.json
 
 else
+echo "################## fusemblr: Skipping Step 5: Polishing assembly with Hifi"
 
 ##convert the assembly to a simple name
 cp 4.ragtag_patch/${prefix}.flye.hifiasm_patch.fa ${prefix}.prefilter.fa
@@ -410,7 +421,7 @@ fi
 #####################################################################
 
 
-echo "################## fusemblr: Step 5: Filtering, ordering and renaming"
+echo "################## fusemblr: Step 6: Filtering, ordering and renaming"
 
 ##filter out any sequences smaller than 10kb, sort by length and then rename as numbered contig in order of largest to smallest (1 being the largest)
 seqkit seq -m 10000 ${prefix}.prefilter.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.fa
