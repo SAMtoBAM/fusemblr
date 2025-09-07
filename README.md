@@ -20,12 +20,13 @@ Paired-end illumina reads and PacBio is optional <br/>
 
 	conda install samtobam::fusemblr
 
+# Container image
 
+	docker pull ghcr.io/samtobam/fusemblr:latest
 
 # How to run
 
- 
-	fusemblr.sh -n nanopore.fq.gz -g 70000000
+ 	fusemblr.sh -n nanopore.fq.gz -g 70000000
 	
 	Required inputs:
 	-n | --nanopore		Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
