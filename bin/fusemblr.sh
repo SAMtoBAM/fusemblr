@@ -7,12 +7,13 @@ version="v1"
 
 ##this pipeline has 5 main steps:
 ## STEP 1: Downsampling on raw ONT reads (Filtlong)
-## STEP 2: Polishing of raw ONT reads with paired end illumina data (Ratatosk)
+## STEP 2: Polishing of raw ONT reads with paired end illumina data (Ratatosk; optional)
 ## STEP 3a: Assembly of polished ONT reads (Flye; modified to allow for larger minimum overlap values)
 ## STEP 3b: Assembly of polshind ONT reads (Hifiasm; using Hifi reads if provided)
-## STEP 4: Patching of Flye assembly using Hifiasm output
+## Step 4: Patching Flye assembly with hifiasm assembly and vice versa
 ## STEP 5: Polishing of assembly using Pacbio (NextPolish2; optional)
 ## STEP 6: Filtering, reordering and renaming (Seqkit)
+
 
 #####################################################################################
 ############# STEP -1. CREATING THE ENVIRONMENT. NOT ACTUALLY USED NOW ##############
@@ -33,6 +34,7 @@ version="v1"
 ## paqman (assembly evaluation)
 
 # mamba create -n fusemblr ratatosk bioconda::filtlong bioconda::flye bioconda::fastp nextpolish2 bioconda::seqkit bioconda::minimap2 bioconda::samtools bioconda::ragtag bioconda::hifiasm samtobam::paqman
+
 #conda activate fusemblr
 
 ##modify the maximum value for minoverlap in flye (making 200kb..the N95 of a read dataset shouldn't exceed that)
@@ -45,9 +47,9 @@ version="v1"
 
 #default values, unless denoted when running MUM&Co
 nanopore=""
+genomesize=""
 pair1=""
 pair2=""
-genomesize=""
 hifi=""
 threads="1"
 minsize="5000"
@@ -73,18 +75,18 @@ case "$key" in
 	shift
 	shift
 	;;
-	-1|--pair1)
+	-g|--genomesize)
+	genomesize="$2"
+	shift
+	shift
+	;;
+  	-1|--pair1)
 	pair1="$2"
 	shift
 	shift
 	;;
 	-2|--pair2)
 	pair2="$2"
-	shift
-	shift
-	;;
-	-g|--genomesize)
-	genomesize="$2"
 	shift
 	shift
 	;;
@@ -148,45 +150,50 @@ case "$key" in
 	
 	fusemblr (version: ${version})
  
-	fusemblr.sh -n nanopore.fq.gz -1 illumina.R1.fq.gz -2 illumina.R2.fq.gz -g 70000000
+	fusemblr.sh -n nanopore.fq.gz -g 70000000
 	
 	Required inputs:
-	-n | --nanopore			Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
-	-1 | --pair1			Paired end illumina reads in fastq format; first pair. Used for Rataosk polishing. Can be gzipped (*.gz)
-	-2 | --pair2			Paired end illumina reads in fastq format; second pair. Used for Rataosk polishing. Can be gzipped (*.gz)	
-	-g | --genomesize		Estimation of genome size, required for downsampling and assembly
+	-n | --nanopore		Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
+	-g | --genomesize	Estimation of genome size, required for downsampling and assembly
 
 	Recommended inputs:
-	-h | --hifi			Pacbio HiFi reads required for assembly polishing with NextPolish2 (Recommended if available)
-	-t | --threads			Number of threads for tools that accept this option (default: 1)
-
-	PAQman specific paramters:
+	-1 | --pair1		Paired end illumina reads in fastq format; first pair. Used for Rataosk polishing. Can be gzipped (*.gz)
+	-2 | --pair2		Paired end illumina reads in fastq format; second pair. Used for Rataosk polishing. Can be gzipped (*.gz)	
+	-h | --hifi		Pacbio HiFi reads required for assembly polishing with NextPolish2 (Recommended if available)
+	-t | --threads		Number of threads for tools that accept this option (Default: 1)
+  
+  PAQman specific paramters:
 	-b | --buscodb			BUSCO database used for assembly validation (Default: Eukaryota)
 	-r | --telomererepeat	Single telomeric repeat used to caluclate telomerality (Default: TTAGGG)
 	
 	Optional parameters:
-	-m | --minsize			Minimum size of reads to keep during downsampling (Default: 5000)
-	-x | --coverage			The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
-	-v | --minovl			Minimum overlap for Flye assembly (Default: Calculated during run as N95 of reads used for assembly)
- 	-w | --weight			The weighting used by Filtlong for selecting reads; balancing the length vs the quality (Default: 5)
-	-p | --prefix			Prefix for output (Default: name of nanopore reads file (-a) before the fastq suffix)
-	-o | --output			Name of output folder for all results (Default: fusemblr_output)
-	-c | --cleanup			Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
-	-h | --help			Print this help message
+	-m | --minsize		Minimum size of reads to keep during downsampling (Default: 5000)
+	-x | --coverage		The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
+	-v | --minovl		Minimum overlap for Flye assembly (Default: Calculated during run as N90 of reads used for assembly)
+ 	-w | --weight		The weighting used by Filtlong for selecting reads; balancing the length vs the quality (Default: 5)
+	-p | --prefix		Prefix for output (Default: name of nanopore reads file (-a) before the fastq suffix)
+	-o | --output		Name of output folder for all results (Default: fusemblr_output)
+	-c | --cleanup		Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
+	-h | --help		Print this help message
 
 	"
 	exit
 	;;
+	*)  # catch invalid args
+    echo "ERROR: Unknown option: '$1'"
+    echo "Run 'fusemblr.sh -h' to see valid options"
+    exit 1
+    ;;
 	esac
 done
 
 
 #creates error message and exits if these values are not/incorrectly assigned 
 [[ $nanopore == "" ]] && echo "ERROR: Path to ONT long-reads not found, assign using -n" && exit
-[[ $pair1 == "" || $pair2 == ""  ]] && echo "ERROR: Missing paired-end short-reads as input, assign using -1 and -2" && exit
 [[ $genomesize == "" ]] && echo "ERROR: Missing genome size estimation, assign using -g (can be a very rough estimate)" && exit
 
 [[ $hifi == "" ]] && echo "WARNING: Running without PacBio Hifi data; skipping final polishing step"
+[[ $pair1 == "" || $pair2 == ""  ]] && echo "WARNING: Running without paired-end short-reads as input; skipping pre-polishing of reads step"
 
 ##############################################################
 ####################### 0b. SETTING UP #######################
@@ -199,18 +206,24 @@ done
 
 ##paths to raw data
 nanoporepath=$( realpath ${nanopore} )
-pair1path=$( realpath ${pair1} )
-pair2path=$( realpath ${pair2} )
+
 
 #check if the files given actually exist
 [ ! -f "${nanoporepath}" ] && echo "ERROR: Cannot find path to nanopore reads provided by -n; check path is correct and file exists" && exit
-[ ! -f "${pair1path}" ] && echo "ERROR: Cannot find path to illumina reads provided by -1; check path is correct and file exists" && exit
-[ ! -f "${pair2path}" ] && echo "ERROR: Cannot find path to illumina reads provided by -2; check path is correct and file exists" && exit
+
 
 if [[  $hifi != "" ]]
 then
 hifipath=$( realpath ${hifi} )
 [ ! -f "${hifipath}" ] && echo "ERROR: Cannot find path to Pacbio Hifi reads provided by -h; check path is correct and file exists" && exit
+fi
+
+if [[  $pair1 != "" ]]
+then
+pair1path=$( realpath ${pair1} )
+pair2path=$( realpath ${pair2} )
+[ ! -f "${pair1path}" ] && echo "ERROR: Cannot find path to illumina reads provided by -1; check path is correct and file exists" && exit
+[ ! -f "${pair2path}" ] && echo "ERROR: Cannot find path to illumina reads provided by -2; check path is correct and file exists" && exit
 fi
 
 
@@ -233,13 +246,13 @@ cd ${output}
 ###################### STEP 1. DOWNSAMPLING ######################
 ##################################################################
 
-echo "#################################################################"
-echo "################## fusemblr: Starting fusemblr ##################"
-echo "#################################################################"
+echo "#######################################################"
+echo "################## Starting fusemblr ##################"
+echo "#######################################################"
 
-echo "################## fusemblr: Outputting data to ${output}"
+echo "Outputting data to ${output}"
 
-echo "################## fusemblr: Step 1: Downsampling ONT reads"
+echo "Step 1: Downsampling ONT reads"
 
 
 ##make a directory for placing the downsampled output
@@ -253,7 +266,11 @@ filtlong --min_length ${minsize} -t ${target} --length_weight ${weight} ${nanopo
 ###################### 2. READ POLISHING WITH RATAOSK #####################
 ###########################################################################
 
-echo "################## fusemblr: Step 2: Polishing ONT reads"
+if [[  $pair1 != "" ]]
+then
+echo "Step 2: Polishing ONT reads"
+
+##run polishing if illumina data is present
 
 
 ## create directory for output of reads
@@ -271,10 +288,29 @@ seqkit stats -N 50,90,95 --threads ${threads} 2.ratatosk_ont/${prefix}.${readsta
 ###get the read N90 to set as a variables in flye
 if [[ $minovl == "" ]]
 then
-minovl=$( tail -n1 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv | awk '{print $11}' | sed 's/,//g' )
+minovl=$( tail -n1 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.stats.tsv | awk '{print $10}' | sed 's/,//g' )
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
 else
 minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
+
+fi
+
+else
+
+echo "Skipping Step 2: Polishing ONT reads"
+##if illunina data isn't present use the downsampled unpolished reads
+##get some stats
+seqkit stats -N 50,90,95 --threads ${threads} 1.filtlong_ont/${prefix}.${readstats}.fq.gz > 1.filtlong_ont/${prefix}.${readstats}.stats.tsv
+
+###get the read N90 to set as a variables in flye
+if [[ $minovl == "" ]]
+then
+minovl=$( tail -n1 1.filtlong_ont/${prefix}.${readstats}.stats.tsv | awk '{print $10}' | sed 's/,//g' )
+minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
+else
+minovl2=$( echo ${minovl} | awk '{print $1/1000}' | awk -F "." '{print $1}' )
+
+fi
 
 fi
 
@@ -282,8 +318,10 @@ fi
 ################## STEP 3a. ASSEMBLY WITH FLYE ##################
 #################################################################
 
-echo "################## fusemblr: Step 3a: Assembling ONT reads with Flye"
+echo "Step 3a: Assembling ONT reads with Flye"
 
+if [[  $pair1 != "" ]]
+then
 ## create a variable that saves these variable in the naming scheme
 assembly="${prefix}.${readstats}.ratatosk.flye_nanocorr_${size2}Mb_${coverage}X_minovl${minovl2}k"
 
@@ -292,15 +330,36 @@ flye --nano-corr 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -m ${minov
 ## make sure the assembly file is named is a simple format
 cp 3a.flye_assembly/assembly.fasta 3a.flye_assembly/${assembly}.fa
 
+else
+## create a variable that saves these variable in the naming scheme
+assembly="${prefix}.${readstats}.flye_nanocorr_${size2}Mb_${coverage}X_minovl${minovl2}k"
+
+## run flye
+flye --nano-corr 1.filtlong_ont/${prefix}.${readstats}.fq.gz -m ${minovl} --genome-size ${genomesize} --asm-coverage ${coverage} --threads ${threads} -o 3a.flye_assembly/
+## make sure the assembly file is named is a simple format
+cp 3a.flye_assembly/assembly.fasta 3a.flye_assembly/${assembly}.fa
+
+fi
+
+##run a check of the actual assembly size from flye and compare this to the input predicted assembly size
+##print out a message to show the two sizes
+actualsize=$( awk '!/^>/ {len += length($0)} END {print len}' 3a.flye_assembly/${assembly}.fa )
+
+echo "Predicted genome size provided by -g: ${genomesize}"
+echo "Flye-asembled genome size: ${actualsize}"
+echo "If these two differ significantly; try re-running fusemblr using the assembled size as the -g paramater (may improve assembly)"
+
 #################################################################
 ################ STEP 3b. ASSEMBLY WITH HIFIASM #################
 #################################################################
 
-echo "################## fusemblr: Step 3b: Assembling ONT reads with Hifiasm"
+echo "Step 3b: Assembling ONT reads with Hifiasm"
 
 ##create directory for the hifiasm output
 mkdir 3b.hifiasm/
 
+if [[  $pair1 != "" ]]
+then
 if [[  $hifi != "" ]]
 then
 ## if hifi data is present; run hifiasm with hifi data and providing ONT reads as an ultralong dataset
@@ -308,6 +367,16 @@ hifiasm -o 3b.hifiasm/${prefix} -t ${threads} --ul 2.ratatosk_ont/${prefix}.${re
 else
 ## if hifi data is not present; run hifiasm with hifi data only providing ONT reads
 hifiasm -o 3b.hifiasm/${prefix} -t ${threads} --ont 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
+fi
+else
+if [[  $hifi != "" ]]
+then
+## if hifi data is present; run hifiasm with hifi data and providing ONT reads as an ultralong dataset
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ul 1.filtlong_ont/${prefix}.${readstats}.fq.gz ${hifipath}
+else
+## if hifi data is not present; run hifiasm with hifi data only providing ONT reads
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont 1.filtlong_ont/${prefix}.${readstats}.fq.gz
+fi
 fi
 ## convert gfa to fasta
 awk '/^S/{print ">"$2;print $3}' 3b.hifiasm/${prefix}.bp.p_ctg.gfa > 3b.hifiasm/${prefix}.hifiasm.fa
@@ -318,7 +387,7 @@ rm 3b.hifiasm/${prefix}.*.bin
 ################### STEP 4. ASSEMBLY GAP FILLING  ###################
 #####################################################################
 
-echo "################## fusemblr: Step 4: Filling gaps in Flye assembly using Hifiasm"
+echo "Step 4: Filling gaps in Flye assembly using Hifiasm"
 
 mkdir 4.ragtag_patch/
 mkdir 4.ragtag_patch/flye.rt_patch/
@@ -342,7 +411,7 @@ rm 4.ragtag_patch/hifiasm.rt_patch/*.fasta
 if [[  $hifi != "" ]]
 then
 
-echo "################## fusemblr: Step 5: Polishing assembly with Hifi"
+echo "Step 5: Polishing assembly with Hifi reads"
 
 mkdir 5.nextpolish2
 
@@ -384,6 +453,9 @@ rm ${prefix}.R*.clean.fq.gz
 rm fastp.html
 rm fastp.json
 
+else
+echo "Skipping Step 5: Polishing assembly with Hifi reads"
+
 fi
 
 
@@ -395,7 +467,7 @@ fi
 #####################################################################
 
 
-echo "################## fusemblr: Step 5: Filtering, ordering and renaming"
+echo "Step 6: Filtering, ordering and renaming"
 
 ##filter out any sequences smaller than 10kb, sort by length and then rename as numbered contig in order of largest to smallest (1 being the largest)
 if [[  $hifi != "" ]]
@@ -448,4 +520,4 @@ paqplots.sh -s 6.paqman_evaluations/combined.summary_stats.tsv -o 6.paqman_evalu
 ############################# FINISHED  #############################
 #####################################################################
 
-echo "################## fusemblr: Thanks for using fusemblr"
+echo "Thanks for using fusemblr"
