@@ -55,32 +55,26 @@ Paired-end illumina reads and PacBio is optional <br/>
 
 
 # Pipeline in 6 steps: <br/>
-### 1. Downsampling of reads to a designated coverage using ```Filtlong```
+### 1. Downsampling of reads to a designated coverage using [Filtlong](https://github.com/rrwick/Filtlong)
 ##### &nbsp; &nbsp; -default is set to 100X (-x); which provided better assemblies compared to the typical 30-50X 
-### 2. _Optional_: Polishing of downsampled reads with the paired-end illumina reads using ```Ratatosk correct``` 
+### 2. _Optional_: Polishing of downsampled reads with the paired-end illumina reads using [Ratatosk](https://github.com/DecodeGenetics/Ratatosk)
 ##### &nbsp; &nbsp; -uses a baseline quality score (-Q) of 90 and therefore assumes mildly recent ONT data (e.g. R10 or high-accuracy basecalling)
 ### 3. Genome Assembly
-#### 3.a. Assembly with```Flye``` 
+#### 3.a. Assembly with [Flye](https://github.com/mikolmogorov/Flye) 
 ##### &nbsp; &nbsp; -removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) 
 ##### &nbsp; &nbsp; -by default the minimum overlap value is automatically provided as the read N90 after polishing
-#### 3.b. Assembly with ```Hifiasm```
+#### 3.b. Assembly with [Hifiasm](https://github.com/chhylp123/hifiasm)
 ##### &nbsp; &nbsp; -if Hifi reads are provided: uses the ```--ul``` option, with both polished ONT and Hifi reads
 ##### &nbsp; &nbsp; -without Hifi: uses the ```--ont``` option, with only the polished ONT reads
-### 4. 'Patch' the Flye assembly (target) using the the Hifiasm assembly (query) with ```Ragtag patch```
+### 4. 'Patch' the Flye assembly (target) using the the Hifiasm assembly (query) with [Ragtag](https://github.com/malonge/RagTag/wiki/patch)
 ##### &nbsp; &nbsp; -uses a minimum unique alignment length (-f) of 25000 to be conservative during patching
-### 5. _Optional_: Polishing of assembly with PacBio Hifi and paired-end illumina reads using ```NextPolish2```
-### 6. Filtering (minimum contig length 10kb), reordering and renaming using ```Seqkit``` and ```awk```
+### 5. _Optional_: Polishing of assembly with PacBio Hifi and paired-end illumina reads using [NextPolish2](https://github.com/Nextomics/NextPolish2)
+### 6. Filtering (minimum contig length 10kb), reordering and renaming using [Seqkit](https://bioinf.shenwei.me/seqkit) and ```awk```
+### 7. Comprehensive evaluation of all assemblies using [PAQman](https://github.com/SAMtoBAM/PAQman)
 
 ## Schematic
 
 <p align="center" >
-    <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/figures/fusemblr_schematic.png" width=70%>
+    <img src="https://github.com/SAMtoBAM/fusemblr/blob/main/figures/fusemblr_schematic.updated.png" width=70%>
 </p>
-
-
-
-Following assembly it is recommended that you run [PAQman](https://github.com/SAMtoBAM/PAQman) on your resulting assembly to comprehensively check the quality <br/>
-It is recommended to feed your resulting assembly to PAQman alongside the 1.filtlong/*.fz.gz set of reads <br/>
-This can also help you compare any assemblies you have to check for the best.
-
 
