@@ -26,25 +26,29 @@ Paired-end illumina reads and PacBio is optional <br/>
 
 # How to run
 
- 	fusemblr.sh -n nanopore.fq.gz -g 70000000
+	fusemblr.sh -n nanopore.fq.gz -g 70000000
 	
 	Required inputs:
 	-n | --nanopore		Nanopore long reads used for assembly in fastq or fasta format (*.fastq / *.fq) and can be gzipped (*.gz)
 	-g | --genomesize	Estimation of genome size, required for downsampling and assembly
 
 	Recommended inputs:
-	-1 | --pair1		Paired end illumina reads in fastq format; first pair. Used for Ratatosk polishing. Can be gzipped (*.gz)
-	-2 | --pair2		Paired end illumina reads in fastq format; second pair. Used for Ratatosk polishing. Can be gzipped (*.gz)		
- 	-h | --hifi		Pacbio HiFi reads required for assembly polishing with NextPolish2 (Recommended if available)
-	-t | --threads		Number of threads for tools that accept this option (default: 1)
+	-1 | --pair1		Paired end illumina reads in fastq format; first pair. Used for Rataosk polishing. Can be gzipped (*.gz)
+	-2 | --pair2		Paired end illumina reads in fastq format; second pair. Used for Rataosk polishing. Can be gzipped (*.gz)	
+	-h | --hifi		Pacbio HiFi reads required for assembly polishing with NextPolish2 (Recommended if available)
+	-t | --threads		Number of threads for tools that accept this option (Default: 1)
+  
+	PAQman specific paramters:
+	-b | --buscodb			BUSCO database used for assembly validation (Default: Eukaryota)
+	-r | --telomererepeat	Single telomeric repeat used to caluclate telomerality (Default: TTAGGG)
 	
 	Optional parameters:
 	-m | --minsize		Minimum size of reads to keep during downsampling (Default: 5000)
 	-x | --coverage		The amount of coverage for downsampling (X), based on genome size, i.e. coverage*genomesize (Default: 100)
-	-v | --minovl		Minimum overlap for Flye assembly,  (Default: Calculated during run as N95 of reads used for assembly)
+	-v | --minovl		Minimum overlap for Flye assembly (Default: Calculated during run as N90 of reads used for assembly)
  	-w | --weight		The weighting used by Filtlong for selecting reads; balancing the length vs the quality (Default: 5)
-	-p | --prefix		Prefix for output (default: name of assembly file (-a) before the fasta suffix)
-	-o | --output		Name of output folder for all results (default: fusemblr_output)
+	-p | --prefix		Prefix for output (Default: name of nanopore reads file (-a) before the fastq suffix)
+	-o | --output		Name of output folder for all results (Default: fusemblr_output)
 	-c | --cleanup		Remove a large number of files produced by each of the tools that can take up a lot of space. Choose between 'yes' or 'no' (default: 'yes')
 	-h | --help		Print this help message
 

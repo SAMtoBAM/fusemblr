@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-version="v1"
+version="v1.1.0"
 
 ##A wrapper for the fusarium assembly project = fusemblr (not the best name but hey, it was almost fusembly, like fusilli; the worst pasta invented)
 
