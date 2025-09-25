@@ -17,11 +17,12 @@ From: quay.io/centos/centos:stream9
     conda config --add channels conda-forge
     conda config --append channels pwwang
     conda config --append channels samtobam
-    conda install conda-build conda-verify
 
     # Accept ToS
     conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
     conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+
+    conda install conda-build conda-verify
 
     # Install your Conda package
     conda create -n fusemblr samtobam::fusemblr 
