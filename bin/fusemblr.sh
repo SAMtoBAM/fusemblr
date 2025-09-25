@@ -476,7 +476,7 @@ seqkit seq -m 10000 5.nextpolish2/${prefix}.flye.rt_patch.nextpolish2.fa | seqki
 seqkit seq -m 10000 5.nextpolish2/${prefix}.hifiasm.rt_patch.nextpolish2.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.hifiasm.final.fa
 else
 seqkit seq -m 10000 4.ragtag_patch/${prefix}.flye.rt_patch.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.flye.final.fa
-seqkit seq -m 10000 4.ragtag_patch/${prefix}.hfiiasm.rt_patch.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.hifiasm.final.fa
+seqkit seq -m 10000 4.ragtag_patch/${prefix}.hifiasm.rt_patch.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.hifiasm.final.fa
 fi
 
 #cd-hit-est -i ${prefix}.prefilter.fa -o ${prefix}.prefilter.cdhitest.fa -aS 0.9 -c 0.9 -G 0 -g 1 -M 0
