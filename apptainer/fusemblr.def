@@ -15,6 +15,9 @@ From: quay.io/centos/centos:stream9
     # set the conda config channels
     conda config --add channels bioconda
     conda config --add channels conda-forge
+    conda config --append channels pwwang
+    conda config --append channels samtobam
+    conda install conda-build conda-verify
 
     # Accept ToS
     conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
