@@ -498,12 +498,23 @@ paqman.sh -a 5.nextpolish2/${prefix}.flye.rt_patch.nextpolish2.fa -l 2.ratatosk_
 paqman.sh -a 5.nextpolish2/${prefix}.hifiasm.rt_patch.nextpolish2.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm.rt_patch.nextpolish2
 fi
 
+if [[  $pair1 != "" ]]
+then
+
 paqman.sh -a 4.ragtag_patch/${prefix}.flye.rt_patch.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.flye.rt_patch.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye.rt_patch
 paqman.sh -a 4.ragtag_patch/${prefix}.hifiasm.rt_patch.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm.rt_patch
 
 paqman.sh -a 3b.hifiasm/${prefix}.hifiasm.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm
 paqman.sh -a 3a.flye_assembly/${assembly}.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.flye.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye
 
+else 
+paqman.sh -a 4.ragtag_patch/${prefix}.flye.rt_patch.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.flye.rt_patch.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye.rt_patch
+paqman.sh -a 4.ragtag_patch/${prefix}.hifiasm.rt_patch.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm.rt_patch
+
+paqman.sh -a 3b.hifiasm/${prefix}.hifiasm.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.hifiasm.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm
+paqman.sh -a 3a.flye_assembly/${assembly}.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.flye.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye
+
+fi
 
 ##now grab all the summary files and group them and run paqplots
 head -n1 6.paqman_evaluations/${prefix}.flye.paqman/summary_stats.tsv > 6.paqman_evaluations/combined.summary_stats.tsv
