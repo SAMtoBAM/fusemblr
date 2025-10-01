@@ -467,7 +467,7 @@ fi
 #####################################################################
 
 
-echo "Step 6: Filtering, ordering and renaming"
+echo "Step 6a: Filtering, ordering and renaming"
 
 ##filter out any sequences smaller than 10kb, sort by length and then rename as numbered contig in order of largest to smallest (1 being the largest)
 if [[  $hifi != "" ]]
@@ -488,7 +488,7 @@ fi
 #####################################################################
 
 
-echo "################## fusemblr: Step 6: Evaluating all assemblies using PAQman"
+echo "Step 6b: Evaluating all assemblies using PAQman"
 
 mkdir 6.paqman_evaluations
 
