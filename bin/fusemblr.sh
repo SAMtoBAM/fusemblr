@@ -259,7 +259,7 @@ echo "Step 1: Downsampling ONT reads"
 mkdir 1.filtlong_ont
 
 ##now run filtlong with the settings
-filtlong --min_length ${minsize} -t ${target} --length_weight ${weight} ${nanoporepath} | gzip > 1.filtlong_ont/${prefix}.${readstats}.fq.gz
+filtlong --min_length ${minsize} -t ${target} --length_weight ${weight} ${nanoporepath} | pigz -p ${threads} > 1.filtlong_ont/${prefix}.${readstats}.fq.gz
 
 
 ###########################################################################
