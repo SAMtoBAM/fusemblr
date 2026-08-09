@@ -7,6 +7,8 @@
 [![Anaconda_platforms](https://anaconda.org/samtobam/fusemblr/badges/platforms.svg)](https://anaconda.org/samtobam/fusemblr)
 [![Anaconda_downloads](https://anaconda.org/samtobam/fusemblr/badges/downloads.svg)](https://anaconda.org/samtobam/fusemblr)
 [![Anaconda-Server Badge](https://anaconda.org/samtobam/fusemblr/badges/latest_release_date.svg)](https://anaconda.org/samtobam/fusemblr)
+![Docker Pulls](https://ghcr-badge.elias.eu.org/shield/samtobam/fusemblr)
+
 
 **_fusemblr_** is a pipeline wrapper designed for the assembly of complex genomes using nanopore reads and paired-end illumina
 
