@@ -569,4 +569,4 @@ mv 6.paqman_evaluations/combined.summary_stats.paqplot.log 6.paqman_evaluations/
 ############################# FINISHED  #############################
 #####################################################################
 
-echo "Thanks for using fusemblr"
+echo "Ngā mihi; Thanks for using fusemblr; E noho rā"
