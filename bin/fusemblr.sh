@@ -383,6 +383,20 @@ awk '/^S/{print ">"$2;print $3}' 3b.hifiasm/${prefix}.bp.p_ctg.gfa > 3b.hifiasm/
 ##clean up
 rm 3b.hifiasm/${prefix}.*.bin
 
+
+if [[  $hifi != "" ]]
+then
+echo "Step 3c: Assembling Hifi reads with Hifiasm alone"
+##create directory for the hifiasm output
+mkdir 3c.hifiasm_HiFi_alone/
+hifiasm -o 3c.hifiasm_HiFi_alone/${prefix} -t ${threads} -l0 ${hifipath}
+## convert gfa to fasta
+awk '/^S/{print ">"$2;print $3}' 3c.hifiasm_HiFi_alone/${prefix}.bp.p_ctg.gfa > 3c.hifiasm_HiFi_alone/${prefix}.hifiasm_HiFi_alone.fa
+##clean up
+rm 3c.hifiasm_HiFi_alone/${prefix}.*.bin
+fi
+
+
 #####################################################################
 ################### STEP 4. ASSEMBLY GAP FILLING  ###################
 #####################################################################
@@ -474,6 +488,7 @@ if [[  $hifi != "" ]]
 then
 seqkit seq -m 10000 5.nextpolish2/${prefix}.flye.rt_patch.nextpolish2.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.flye.final.fa
 seqkit seq -m 10000 5.nextpolish2/${prefix}.hifiasm.rt_patch.nextpolish2.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.hifiasm.final.fa
+seqkit seq -m 10000 3c.hifiasm_HiFi_alone/${prefix}.hifiasm_HiFi_alone.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}' > 3c.hifiasm_HiFi_alone/${prefix}.hifiasm_HiFi_alone.final.fa
 else
 seqkit seq -m 10000 4.ragtag_patch/${prefix}.flye.rt_patch.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.flye.final.fa
 seqkit seq -m 10000 4.ragtag_patch/${prefix}.hifiasm.rt_patch.fa | seqkit sort -l -r - | awk 'BEGIN{n=1} {if($1 ~ ">") {print ">contig_"n; n++} else{print}}'  > ${prefix}.hifiasm.final.fa
@@ -492,14 +507,6 @@ echo "Step 6b: Evaluating all assemblies using PAQman"
 
 mkdir 6.paqman_evaluations
 
-if [[  $hifi != "" ]]
-then
-paqman.sh -seq scaffolds -a 5.nextpolish2/${prefix}.flye.rt_patch.nextpolish2.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye.rt_patch.nextpolish2 > 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman.log
-mv 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman.log 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman/
-paqman.sh -seq scaffolds -a 5.nextpolish2/${prefix}.hifiasm.rt_patch.nextpolish2.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm.rt_patch.nextpolish2 > 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman.log
-mv 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman.log 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman/
-fi
-
 if [[  $pair1 != "" ]]
 then
 
@@ -513,8 +520,18 @@ mv 6.paqman_evaluations/${prefix}.hifiasm.paqman.log 6.paqman_evaluations/${pref
 paqman.sh -seq scaffolds -a 3a.flye_assembly/${assembly}.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.flye.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye > 6.paqman_evaluations/${prefix}.flye.paqman.log
 mv 6.paqman_evaluations/${prefix}.flye.paqman.log 6.paqman_evaluations/${prefix}.flye.paqman/
 
+if [[  $hifi != "" ]]
+then
+paqman.sh -seq scaffolds -a 5.nextpolish2/${prefix}.flye.rt_patch.nextpolish2.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye.rt_patch.nextpolish2 > 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman.log
+mv 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman.log 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman/
+paqman.sh -seq scaffolds -a 5.nextpolish2/${prefix}.hifiasm.rt_patch.nextpolish2.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm.rt_patch.nextpolish2 > 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman.log
+mv 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman.log 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman/
+paqman.sh -seq scaffolds -a 3c.hifiasm_HiFi_alone/${prefix}.hifiasm_HiFi_alone.final.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm_HiFi_alone > 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log
+mv 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman/
+fi
+
 else 
-paqman.sh -seq scaffolds -a  ${prefix}.flye.final.fa  -l 1.filtlong_ont/${prefix}.${readstats}.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.flye.final.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye.final > 6.paqman_evaluations/${prefix}.flye.final.paqman.log
+paqman.sh -seq scaffolds -a ${prefix}.flye.final.fa  -l 1.filtlong_ont/${prefix}.${readstats}.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.flye.final.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye.final > 6.paqman_evaluations/${prefix}.flye.final.paqman.log
 mv 6.paqman_evaluations/${prefix}.flye.final.paqman.log 6.paqman_evaluations/${prefix}.flye.final.paqman/
 paqman.sh -seq scaffolds -a ${prefix}.hifiasm.final.fa -l 1.filtlong_ont/${prefix}.${readstats}.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.hifiasm.final.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm.final > 6.paqman_evaluations/${prefix}.hifiasm.final.paqman.log
 mv 6.paqman_evaluations/${prefix}.hifiasm.final.paqman.log  6.paqman_evaluations/${prefix}.hifiasm.final.paqman/
@@ -523,6 +540,16 @@ paqman.sh -seq scaffolds -a 3b.hifiasm/${prefix}.hifiasm.fa -l 1.filtlong_ont/${
 mv 6.paqman_evaluations/${prefix}.hifiasm.paqman.log 6.paqman_evaluations/${prefix}.hifiasm.paqman/
 paqman.sh -seq scaffolds -a 3a.flye_assembly/${assembly}.fa -l 1.filtlong_ont/${prefix}.${readstats}.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.flye.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye > 6.paqman_evaluations/${prefix}.flye.paqman.log
 mv 6.paqman_evaluations/${prefix}.flye.paqman.log 6.paqman_evaluations/${prefix}.flye.paqman/
+
+if [[  $hifi != "" ]]
+then
+paqman.sh -seq scaffolds -a 5.nextpolish2/${prefix}.flye.rt_patch.nextpolish2.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.flye.rt_patch.nextpolish2 > 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman.log
+mv 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman.log 6.paqman_evaluations/${prefix}.flye.rt_patch.nextpolish2.paqman/
+paqman.sh -seq scaffolds -a 5.nextpolish2/${prefix}.hifiasm.rt_patch.nextpolish2.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm.rt_patch.nextpolish2 > 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman.log
+mv 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman.log 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman/
+paqman.sh -seq scaffolds -a 3c.hifiasm_HiFi_alone/${prefix}.hifiasm_HiFi_alone.final.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm_HiFi_alone > 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log
+mv 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman/
+fi
 
 fi
 
