@@ -363,19 +363,19 @@ then
 if [[  $hifi != "" ]]
 then
 ## if hifi data is present; run hifiasm with hifi data and providing ONT reads as an ultralong dataset
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} --ul 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz ${hifipath}
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l2 --ul 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz ${hifipath}
 else
 ## if hifi data is not present; run hifiasm with hifi data only providing ONT reads
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} --ont 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l2 --ont 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz
 fi
 else
 if [[  $hifi != "" ]]
 then
 ## if hifi data is present; run hifiasm with hifi data and providing ONT reads as an ultralong dataset
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ul 1.filtlong_ont/${prefix}.${readstats}.fq.gz ${hifipath}
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l2 --ul 1.filtlong_ont/${prefix}.${readstats}.fq.gz ${hifipath}
 else
 ## if hifi data is not present; run hifiasm with hifi data only providing ONT reads
-hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l0 --ont 1.filtlong_ont/${prefix}.${readstats}.fq.gz
+hifiasm -o 3b.hifiasm/${prefix} -t ${threads} -l2 --ont 1.filtlong_ont/${prefix}.${readstats}.fq.gz
 fi
 fi
 ## convert gfa to fasta
@@ -389,7 +389,7 @@ then
 echo "Step 3c: Assembling Hifi reads with Hifiasm alone"
 ##create directory for the hifiasm output
 mkdir 3c.hifiasm_HiFi_alone/
-hifiasm -o 3c.hifiasm_HiFi_alone/${prefix} -t ${threads} -l0 ${hifipath}
+hifiasm -o 3c.hifiasm_HiFi_alone/${prefix} -t ${threads} -l2 ${hifipath}
 ## convert gfa to fasta
 awk '/^S/{print ">"$2;print $3}' 3c.hifiasm_HiFi_alone/${prefix}.bp.p_ctg.gfa > 3c.hifiasm_HiFi_alone/${prefix}.hifiasm_HiFi_alone.fa
 ##clean up
