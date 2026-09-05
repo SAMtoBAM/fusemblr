@@ -64,7 +64,7 @@ Paired-end illumina reads and PacBio is optional <br/>
 ##### &nbsp; &nbsp; -removed the hard coded maximium value for the minimum overlap threshold (previously 10kb) 
 ##### &nbsp; &nbsp; -by default the minimum overlap value is automatically provided as the read N90 after polishing
 #### 3.b. Assembly with [Hifiasm](https://github.com/chhylp123/hifiasm)
-##### &nbsp; &nbsp; -if Hifi reads are provided: uses the ```--ul``` option, with both polished ONT and Hifi reads
+##### &nbsp; &nbsp; -if Hifi reads are provided: uses the ```--ul``` option, with both polished ONT and Hifi reads; and default options with HiFi reads alone
 ##### &nbsp; &nbsp; -without Hifi: uses the ```--ont``` option, with only the polished ONT reads
 ### 4. 'Patch' the Flye assembly (target) using the the Hifiasm assembly (query) with [Ragtag](https://github.com/malonge/RagTag/wiki/patch)
 ##### &nbsp; &nbsp; -uses a minimum unique alignment length (-f) of 25000 to be conservative during patching
