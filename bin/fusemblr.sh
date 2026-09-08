@@ -538,7 +538,7 @@ then
     mv 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman.log 6.paqman_evaluations/${prefix}.hifiasm.rt_patch.nextpolish2.paqman/
 
     paqman.sh -seq scaffolds -a 3c.hifiasm_HiFi_alone/${prefix}.hifiasm_HiFi_alone.final.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -1 ${pair1path} -2 ${pair2path} -o 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm_HiFi_alone > 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log
-    mv 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone/
+    mv 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman/
 
 elif [[ $hifi != "" ]]
 then
@@ -555,7 +555,7 @@ then
     mv 6.paqman_evaluations/${prefix}.flye.paqman.log 6.paqman_evaluations/${prefix}.flye.paqman/
 
     paqman.sh -seq scaffolds -a 3c.hifiasm_HiFi_alone/${prefix}.hifiasm_HiFi_alone.final.fa -l 2.ratatosk_ont/${prefix}.${readstats}.ratatosk.fq.gz -x ont -o 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman -t ${threads} -b ${buscodb} -r ${telomererepeat} -p ${prefix}.hifiasm_HiFi_alone > 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log
-    mv 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone/
+    mv 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman.log 6.paqman_evaluations/${prefix}.hifiasm_HiFi_alone.paqman/
 
 elif [[ $pair1 != "" ]]
 then
